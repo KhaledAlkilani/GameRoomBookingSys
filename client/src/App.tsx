@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { api, Player } from "./api/api";
-import { Button } from "@mui/material";
 
 function App() {
   const [players, setPlayers] = useState<Player[]>([]);
