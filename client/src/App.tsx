@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api, Player } from "./api/api";
+import { Typography } from "@mui/material";
 
 function App() {
   const [players, setPlayers] = useState<Player[]>([]);
@@ -9,10 +10,17 @@ function App() {
     api
       .getPlayers()
       .then(setPlayers)
-      .catch((err) => setError(err.message));
+      .catch(() =>
+        setError(
+          "Server is offline or an error occurred. Please try again later."
+        )
+      );
   }, []);
 
-  if (error) return <p>Error: {error}</p>;
+  if (error)
+    return (
+      <Typography sx={{ p: 2, color: "red" }}>{error}</Typography>
+    );
 
   return (
     <div
