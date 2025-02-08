@@ -1,0 +1,36 @@
+# Ignore Visual Studio files
+.vs/
+bin/
+obj/
+
+# Ignore build artifacts
+*.exe
+*.dll
+*.pdb
+*.appx
+*.appxbundle
+*.msix
+*.msixbundle
+*.nupkg
+*.snupkg
+
+# Ignore user-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Ignore logs and database
+*.log
+logs/
+*.db
+*.mdf
+*.ldf
+
+# Ignore EF Core migrations
+Migrations/
+
+# Ignore environment settings
+appsettings.Development.json
+secrets.json
+.env
