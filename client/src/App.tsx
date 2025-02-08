@@ -18,9 +18,7 @@ function App() {
   }, []);
 
   if (error)
-    return (
-      <Typography sx={{ p: 2, color: "red" }}>{error}</Typography>
-    );
+    return <Typography sx={{ p: 2, color: "red" }}>{error}</Typography>;
 
   return (
     <div
