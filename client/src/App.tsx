@@ -3,6 +3,7 @@ import { api, Player } from "./api/api";
 import { Typography } from "@mui/material";
 
 function App() {
+  // Test commit and push to the new repo main branch
   const [players, setPlayers] = useState<Player[]>([]);
   const [error, setError] = useState<string | null>(null);
 
