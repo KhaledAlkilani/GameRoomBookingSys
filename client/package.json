@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint .",
     "preview": "vite preview",
-    "dev": "npm run generate-api && vite",
+    "dev": "vite",
     "build": "tsc -b && vite build && npm run generate-api",
     "generate-api": "npx openapi-typescript-codegen --input http://localhost:5025/swagger/v1/swagger.json --output src/api --client fetch && node generateApiWrapper.cjs"
   },
