@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Server.Data;
 using Server.Models;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class PlayersController : ControllerBase

@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Server.Data;
 using Microsoft.OpenApi.Models;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +50,27 @@ builder.Services.AddCors(options =>
         .AllowAnyHeader();
     });
 });
+
+// Add keycloak configuration
+var keycloakDomain = "http://localhost:8080/realms/gameroombookingsys";
+var keycloakClientId = "gameroom-client";
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.Authority = keycloakDomain;
+        options.RequireHttpsMetadata = false;
+        options.Audience = keycloakClientId;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateAudience = true,
+            ValidateIssuer = true,
+            ValidIssuer = keycloakDomain,
+        };
+    });
+
+builder.Services.AddAuthorization();
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
