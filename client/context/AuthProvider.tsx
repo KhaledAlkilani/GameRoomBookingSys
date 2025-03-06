@@ -1,4 +1,110 @@
-import Keycloak from "keycloak-js";
+// import React, { createContext, useContext, useEffect, useState } from "react";
+// import jwt_decode from "../src/jwt-decode-wrapper";
+// import Keycloak, { KeycloakInstance, KeycloakConfig } from "keycloak-js";
+
+// // const keycloakConfig: KeycloakConfig = {
+// //   url: "http://localhost:8080",
+// //   realm: "gameroombookingsys",
+// //   clientId: "gameroom-client",
+// // };
+
+// // const keycloak = new Keycloak(keycloakConfig);
+
+// // keycloak.init({ onLoad: "login-required" }).then((authenticated) => {
+// //   if (authenticated) {
+// //     console.log("User is authenticated");
+// //   } else {
+// //     console.log("User is not authenticated");
+// //   }
+// // });
+
+// interface AuthContextProps {
+//   keycloak: KeycloakInstance | null;
+//   authenticated: boolean;
+// }
+
+// export const AuthContext = createContext<AuthContextProps>({
+//   keycloak: null,
+//   authenticated: false,
+// });
+
+// export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
+//   children,
+// }) => {
+//   const [keycloak, setKeycloak] = useState<KeycloakInstance | null>(null);
+//   const [authenticated, setAuthenticated] = useState<boolean>(false);
+//   function parseRolesFromToken(token: string) {
+//     const decoded: any = jwt_decode(token);
+//     // Check realm roles
+//     const realmRoles = decoded?.realm_access?.roles || [];
+//     // Check client roles if “admin” is assigned at the client level
+//     const clientRoles =
+//       decoded?.resource_access?.["gameroom-client"]?.roles || [];
+//     return {
+//       isAdmin: realmRoles.includes("admin") || clientRoles.includes("admin"),
+//     };
+//   }
+//   useEffect(() => {
+//     const keycloakConfig: KeycloakConfig = {
+//       url: "http://localhost:8080",
+//       realm: "gameroombookingsys",
+//       clientId: "gameroom-client",
+//     };
+
+//     const keycloakInstance = new Keycloak(keycloakConfig);
+
+//     keycloakInstance
+//       .init({
+//         onLoad: "check-sso",
+//         checkLoginIframe: false,
+//       })
+//       .then((authenticated) => {
+//         setKeycloak(keycloakInstance);
+//         setAuthenticated(authenticated);
+//       })
+//       .catch((err) => console.error("Keycloak initialization error", err));
+//   }, []);
+
+//   // keycloakInstance.init({ onLoad: "login-required" }).then((authenticated) => {
+//   //   if (authenticated) {
+//   //     console.log("User is authenticated");
+//   //   } else {
+//   //     console.log("User is not authenticated");
+//   //   }
+//   // });
+
+//   // Add a periodic token refresh mechanism
+//   useEffect(() => {
+//     if (keycloak) {
+//       const refreshInterval = setInterval(() => {
+//         keycloak
+//           .updateToken(30) // minimum validity in seconds
+//           .then((refreshed: boolean) => {
+//             if (refreshed) {
+//               console.log("Token refreshed", (keycloak as any).token);
+//             }
+//           })
+//           .catch(() => {
+//             console.error("Failed to refresh token");
+//           });
+//       }, 60000);
+//       return () => clearInterval(refreshInterval);
+//     }
+//   }, [keycloak]);
+
+//   if (!keycloak) {
+//     return <div>Loading authentication...</div>;
+//   }
+
+//   return (
+//     <AuthContext.Provider value={{ keycloak, authenticated }}>
+//       {children}
+//     </AuthContext.Provider>
+//   );
+// };
+
+// export const useAuth = () => useContext(AuthContext);
+import Keycloak, { KeycloakInstance } from "keycloak-js";
 import {
   createContext,
   useState,
@@ -13,6 +119,9 @@ interface AuthStateProps {
   isAuthenticated: boolean;
   isAdmin: boolean;
   token: string | null;
+  authenticated: boolean;
+  keycloak: KeycloakInstance | null;
+  //   authenticated: boolean;
 }
 
 interface KeycloakTokenPayload {
@@ -97,6 +206,8 @@ const AuthProvider = ({ children }: { children: ReactNode }) => {
     isAuthenticated,
     isAdmin,
     token,
+    authenticated: isAuthenticated,
+    keycloak,
   };
 
   return (
