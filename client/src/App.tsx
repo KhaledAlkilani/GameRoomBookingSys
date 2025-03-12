@@ -1,4 +1,4 @@
-import Players from "./components/Players";
+import Players from "./components/PlayerProfile";
 
 function App() {
   return (

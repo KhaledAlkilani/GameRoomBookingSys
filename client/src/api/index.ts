@@ -7,6 +7,6 @@ export { CancelablePromise, CancelError } from './core/CancelablePromise';
 export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
-export type { Player } from './models/Player';
+export type { PlayerDto } from './models/PlayerDto';
 
-export { PlayersService } from './services/PlayersService';
+export { PlayerService } from './services/PlayerService';

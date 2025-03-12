@@ -1,7 +1,9 @@
-import { PlayersService } from "./services/PlayersService";
+import * as PlayerServiceExports from "./services/PlayerService";
+
 
 export const api = {
-  getPlayers: PlayersService.getApiPlayers,
+  ...PlayerServiceExports
 };
 
-export * from "./models/Player";
+
+export * from "./models/PlayerDto";
