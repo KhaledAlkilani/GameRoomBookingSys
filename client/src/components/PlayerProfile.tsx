@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Typography } from "@mui/material";
 import { api, PlayerDto } from "../api/api";
 
-const Players = () => {
+const PlayerProfile = () => {
   const [player, setPlayer] = useState<PlayerDto>({});
   const [error, setError] = useState<string | null>(null);
 
@@ -41,4 +41,4 @@ const Players = () => {
   );
 };
 
-export default Players;
+export default PlayerProfile;
