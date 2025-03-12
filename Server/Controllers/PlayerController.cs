@@ -17,7 +17,9 @@ public class PlayerController : ControllerBase
 
     // GET api/player/profile
     [HttpGet("profile")]
+    // Ensure Swagger sees PlayerDto
     [ProducesResponseType(typeof(PlayerDto), StatusCodes.Status200OK)]
+    // Control the method name
     [SwaggerOperation(OperationId = "GetPlayerInfo")]
     public async Task<ActionResult> GetPlayerInfo()
     {
