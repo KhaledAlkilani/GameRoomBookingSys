@@ -9,13 +9,13 @@ const LoginPage = () => {
   return (
     <>
       <Header />
-      <Container maxWidth="sm" sx={{ textAlign: "center", mt: 5 }}>
-        <Typography variant="h3" gutterBottom>
+      <Container maxWidth="sm" sx={{ textAlign: "center", mt: 5 , fontFamily: "'Pixelify Sans', sans-serif"}}>
+        <Typography variant="h3" gutterBottom sx={{ fontFamily: "'Pixelify Sans', sans-serif" }}>
           Welcome to XVent
         </Typography>
-        <Typography variant="h6">
+        {/* <Typography variant="h6" sx={{ fontFamily: "'Pixelify Sans', sans-serif" }}>
           Your ultimate event management system. <br /> Please log in to access your account and manage your events with ease.
-        </Typography>
+        </Typography> */}
 
         <Box component="form" sx={{ mt: 3 }}>
           <TextField
@@ -26,6 +26,7 @@ const LoginPage = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             margin="normal"
+            sx={{ fontFamily: "'Pixelify Sans', sans-serif" }}
           />
 
           <TextField
@@ -38,6 +39,7 @@ const LoginPage = () => {
             onChange={(e) => setPassword(e.target.value)}
             margin="normal"
             helperText="Enter password (min. 8 characters, includes letters & numbers)"
+            sx={{ fontFamily: "'Pixelify Sans', sans-serif" }}
           />
 
           <Box display="flex" justifyContent="space-between" sx={{ mt: 2 }}>
@@ -49,7 +51,7 @@ const LoginPage = () => {
             </Link>
           </Box>
 
-          <Button variant="contained" fullWidth sx={{ mt: 3, bgcolor: "grey", ":hover": { bgcolor: "black" } }}>
+          <Button variant="contained" fullWidth sx={{ mt: 3, bgcolor: "grey", ":hover": { bgcolor: "black" }, fontFamily: "'Pixelify Sans', sans-serif" }}>
             Login
           </Button>
         </Box>

@@ -1,9 +1,16 @@
-import Players from "./components/Players";
-
+//import Players from "./components/Players";
+import "@fontsource/pixelify-sans/700.css";
+import LoginPage from "./components/LoginPage";
 function App() {
   return (
     <>
-      <Players />
+    
+    <LoginPage/>
+    <div>
+        {/* <Players /> */}
+    </div>
+    
+      
     </>
   );
 }
