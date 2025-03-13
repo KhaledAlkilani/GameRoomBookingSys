@@ -13,10 +13,6 @@ const LoginPage = () => {
         <Typography variant="h3" gutterBottom sx={{ fontFamily: "'Pixelify Sans', sans-serif" }}>
           Welcome to XVent
         </Typography>
-        {/* <Typography variant="h6" sx={{ fontFamily: "'Pixelify Sans', sans-serif" }}>
-          Your ultimate event management system. <br /> Please log in to access your account and manage your events with ease.
-        </Typography> */}
-
         <Box component="form" sx={{ mt: 3 }}>
           <TextField
             fullWidth
