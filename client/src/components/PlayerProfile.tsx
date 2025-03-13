@@ -1,17 +1,14 @@
 import { useEffect, useState } from "react";
-import { api, Player } from "../api/api";
 import { Typography } from "@mui/material";
+import { api, PlayerDto } from "../api/api";
 
-// This was created for testing. Can remove it or update it when start app implementation.
-
-const Players = () => {
-  const [players, setPlayers] = useState<Player[]>([]);
+const PlayerProfile = () => {
+  const [player, setPlayer] = useState<PlayerDto>({});
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    api
-      .getPlayers()
-      .then(setPlayers)
+    api.PlayerService.getPlayerInfo()
+      .then(setPlayer)
       .catch(() =>
         setError(
           "Server is offline or an error occurred. Please try again later."
@@ -35,15 +32,13 @@ const Players = () => {
       <h1>Players</h1>
       <div>
         <ul>
-          {players.map((player) => (
-            <li key={player.id}>
-              {player.firstName} {player.lastName}
-            </li>
-          ))}
+          <li key={player.id}>
+            {player.email} {player.pictureUrl}
+          </li>
         </ul>
       </div>
     </div>
   );
 };
 
-export default Players;
+export default PlayerProfile;

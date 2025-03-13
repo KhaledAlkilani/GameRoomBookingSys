@@ -1,6 +1,10 @@
 using Microsoft.EntityFrameworkCore;
-using Server.Data;
 using Microsoft.OpenApi.Models;
+using gameroombookingsys;
+using gameroombookingsys.Interfaces;
+using Gameroombookingsys.Repository;
+using Gameroombookingsys.Services;
+using gameroombookingsys.IRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,8 +16,12 @@ var apiVersion = "v1";
 var frontEndUrl = "http://localhost:5173";
 
 // Setup Database Context
-builder.Services.AddDbContext<GameRoomBookingSysContext>(options =>
+builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
+
+// Repository & service registration
+builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
+builder.Services.AddScoped<IPlayerService, PlayerService>();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -24,6 +32,9 @@ builder.Services.AddEndpointsApiExplorer();
 // OpenAPI Configuration
 builder.Services.AddSwaggerGen(options =>
 {
+    // Enable the annotations
+    options.EnableAnnotations();
+
     options.SwaggerDoc(apiVersion, new OpenApiInfo
     {
         Title = apiTitle,
