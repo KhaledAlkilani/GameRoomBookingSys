@@ -1,7 +1,7 @@
 ﻿using Gameroombookingsys.Models;
-using Microsoft.EntityFrameworkCore; 
-using gameroombookingsys.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using gameroombookingsys;
+using gameroombookingsys.IRepository;
 
 namespace Gameroombookingsys.Repository
 {
@@ -14,7 +14,7 @@ namespace Gameroombookingsys.Repository
             _context = context;
         }
 
-        public async Task<Player> GetPlayerByEmailAsync(string email)
+        public async Task<Player> GetPlayerByEmail(string email)
         {
             return await _context.Players.FirstOrDefaultAsync(p => p.Email == email);
         }

@@ -4,6 +4,7 @@ using gameroombookingsys;
 using gameroombookingsys.Interfaces;
 using Gameroombookingsys.Repository;
 using Gameroombookingsys.Services;
+using gameroombookingsys.IRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 

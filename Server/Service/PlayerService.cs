@@ -1,7 +1,8 @@
-﻿using Gameroombookingsys.Models; 
+﻿using Gameroombookingsys.Models;
 using System.Threading.Tasks;
 using gameroombookingsys.DTOs;
 using gameroombookingsys.Interfaces;
+using gameroombookingsys.IRepository;
 
 namespace Gameroombookingsys.Services
 {
@@ -14,9 +15,9 @@ namespace Gameroombookingsys.Services
             _playerRepository = playerRepository;
         }
 
-        public async Task<PlayerDto> GetPlayerByEmailAsync(string email)
+        public async Task<PlayerDto> GetPlayerByEmail(string email)
         {
-            var player = await _playerRepository.GetPlayerByEmailAsync(email);
+            var player = await _playerRepository.GetPlayerByEmail(email);
             if (player == null)
                 return null;
 

@@ -3,6 +3,7 @@ using System.Security.Claims;
 using gameroombookingsys.Interfaces;
 using gameroombookingsys.DTOs;
 using Swashbuckle.AspNetCore.Annotations;
+using Gameroombookingsys.Services;
 
 [ApiController]
 [Route("api/player")]
@@ -27,13 +28,13 @@ public class PlayerController : ControllerBase
         {
             // Retrieve the player's email from the authentication claims.
             //var email = User.FindFirst(ClaimTypes.Email)?.Value;
-            var email = "khaledkelany@gmail.com";
+            var email = User.FindFirst(ClaimTypes.Email)?.Value ?? "khaledkelany@gmail.com";
             if (string.IsNullOrEmpty(email))
             {
                 return Unauthorized("No email claim found.");
             }
 
-            var playerDto = await _playerService.GetPlayerByEmailAsync(email);
+            var playerDto = await _playerService.GetPlayerByEmail(email);
             if (playerDto == null)
             {
                 return NotFound("Player not found.");
@@ -47,38 +48,41 @@ public class PlayerController : ControllerBase
         }
     }
 
-//    // GET api/player/{id}
-//    [HttpGet("{id}")]
-//    public async Task<IActionResult> GetPlayerById(int id)
-//    {
-//        try
-//        {
-//            var player = await _dbcontext.Players.FindAsync(id);
-//            if (player == null)
-//            {
-//                return NotFound(new {message = "Player not found" });
-//            }
-//            return Ok();
-//        }
-//        catch (Exception e)
-//        {
-//            return StatusCode(500, new { message = "Error fetching player by ID", error = e.Message });
-//        }
-//    }
+   // // GET api/player/{id}
+   // [HttpGet("{id}")]
+   // [ProducesResponseType(typeof(PlayerDto), StatusCodes.Status200OK)]
+   // //Control the method name
+   //[SwaggerOperation(OperationId = "GetPlayerById")]
+   //     public async Task<ActionResult> GetPlayerById(int id)
+   // {
+   //     try
+   //     {
+   //         var player = await playerService.Players.FindAsync(id);
+   //         if (player == null)
+   //         {
+   //             return NotFound(new { message = "Player not found" });
+   //         }
+   //         return Ok();
+   //     }
+   //     catch (Exception e)
+   //     {
+   //         return StatusCode(500, new { message = "Error fetching player by ID", error = e.Message });
+   //     }
+   // }
 
-//    // GET api/player (for admin, might add an authorization attribute)
-//    [HttpGet]
-//    public async Task<IActionResult> GetAllPlayers()
-//    {
-//        try
-//        {
-//            var players = await _dbcontext.Players.ToListAsync();
-//            return Ok(players);
-//        } 
-//        catch (Exception e)
-//        {
-//            return StatusCode(500, new { message = "Error fetching players", error = e.Message });
-//        }
-       
-//    }
+    //    // GET api/player (for admin, might add an authorization attribute)
+    //    [HttpGet]
+    //    public async Task<IActionResult> GetAllPlayers()
+    //    {
+    //        try
+    //        {
+    //            var players = await _dbcontext.Players.ToListAsync();
+    //            return Ok(players);
+    //        } 
+    //        catch (Exception e)
+    //        {
+    //            return StatusCode(500, new { message = "Error fetching players", error = e.Message });
+    //        }
+
+    //    }
 }

@@ -4,6 +4,7 @@ namespace gameroombookingsys.Interfaces
 {
     public interface IPlayerService
     {
-        Task<PlayerDto> GetPlayerByEmailAsync(string email);
+        Task<PlayerDto> GetPlayerByEmail(string email);
+
     }
 }

@@ -1,8 +1,9 @@
 ﻿using gameroombookingsys.Enums;
+using Gameroombookingsys.Models;
 
-namespace Gameroombookingsys.Models
+namespace gameroombookingsys.DTOs
 {
-    public class RoomBooking : BaseEntity
+    public class RoomBookingDto : BaseEntity
     {
         public DateTime BookingDateTime { get; set; }
         public TimeSpan Duration { get; set; }
