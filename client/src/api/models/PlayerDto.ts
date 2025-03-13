@@ -2,11 +2,13 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type Player = {
+export type PlayerDto = {
     id?: number;
-    firstName?: string | null;
-    lastName?: string | null;
-    phoneNumber?: number;
+    createdAt?: string;
+    updatedAt?: string;
+    pictureUrl?: string | null;
+    phoneNumber?: string | null;
     email?: string | null;
+    theme?: string | null;
 };
 

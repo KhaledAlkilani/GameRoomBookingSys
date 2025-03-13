@@ -7,6 +7,13 @@ export { CancelablePromise, CancelError } from './core/CancelablePromise';
 export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
-export type { Player } from './models/Player';
+export { BookingStatus } from './models/BookingStatus';
+export type { Device } from './models/Device';
+export type { DeviceDto } from './models/DeviceDto';
+export { DeviceStatus } from './models/DeviceStatus';
+export type { PlayerDto } from './models/PlayerDto';
+export type { RoomBookingDto } from './models/RoomBookingDto';
 
-export { PlayersService } from './services/PlayersService';
+export { DeviceService } from './services/DeviceService';
+export { PlayerService } from './services/PlayerService';
+export { RoomBookingService } from './services/RoomBookingService';

@@ -1,9 +1,9 @@
-import Players from "./components/Players";
+import PlayerProfile from "./components/PlayerProfile";
 
 function App() {
   return (
     <>
-      <Players />
+      <PlayerProfile />
     </>
   );
 }
