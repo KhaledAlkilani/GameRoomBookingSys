@@ -4,6 +4,8 @@
 /* eslint-disable */
 export type PlayerDto = {
     id?: number;
+    createdAt?: string;
+    updatedAt?: string;
     pictureUrl?: string | null;
     phoneNumber?: string | null;
     email?: string | null;
