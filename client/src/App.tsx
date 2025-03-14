@@ -1,10 +1,13 @@
-import PlayerProfile from "./components/PlayerProfile";
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import LoginPage from './components/LoginPage';
 
 function App() {
   return (
-    <>
-      <PlayerProfile />
-    </>
+    <Router>  {/* Make sure this wrapper is present */}
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+      </Routes>
+    </Router>
   );
 }
 
