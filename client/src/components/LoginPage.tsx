@@ -1,10 +1,13 @@
 import { Container, Typography, TextField, Button, Box, Link } from "@mui/material";
+// import '@fontsource/pixelify-sans.css'
 import { useState } from "react";
 import Header from "./Header";
+import { PlayerDto } from "../api";
+
 
 const LoginPage = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+
+  const [playerInfo, setPlayerInfo] = useState<PlayerDto>({});
 
   return (
     <>
@@ -19,8 +22,8 @@ const LoginPage = () => {
             label="Email"
             variant="outlined"
             placeholder="Enter your email (must end with edu.xamk.fi)"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={playerInfo.email}
+            onChange={(e) => setPlayerInfo({...playerInfo, email: e.target.value})}
             margin="normal"
             sx={{ fontFamily: "'Pixelify Sans', sans-serif" }}
           />
@@ -31,8 +34,7 @@ const LoginPage = () => {
             type="password"
             variant="outlined"
             placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={""}
             margin="normal"
             helperText="Enter password (min. 8 characters, includes letters & numbers)"
             sx={{ fontFamily: "'Pixelify Sans', sans-serif" }}
