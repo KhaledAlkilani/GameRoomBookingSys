@@ -11,8 +11,6 @@ namespace gameroombookingsys.Interfaces
         Task<List<DeviceDto>> GetAllDevices();
         Task<List<DeviceDto>> GetAvailableDevices();
         Task<List<DeviceDto>> GetUnavailableDevices();
-        Task<List<DeviceDto>> GetDevicesByType(string deviceType);
-        Task<List<DeviceDto>> GetDevicesByStatus(string deviceStatus);
 
     }
 }

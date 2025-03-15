@@ -7,7 +7,7 @@ namespace gameroombookingsys.DTOs
     {
         public DateTime BookingDateTime { get; set; }
         public TimeSpan Duration { get; set; }
-        public List<Device> Devices { get; set; } = new List<Device>();
+        public List<DeviceDto> Devices { get; set; } = new List<DeviceDto>();
         public bool isPlayingAlone { get; set; }
         public int Fellows { get; set; }
         public BookingStatus Status { get; set; } = BookingStatus.Upcoming;

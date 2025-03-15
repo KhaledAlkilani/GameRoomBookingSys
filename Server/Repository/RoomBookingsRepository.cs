@@ -71,5 +71,34 @@ namespace gameroombookingsys.Repository
             }
         }
 
+        public async Task<RoomBooking> GetRoomBookingByPlayerId(int playerId)
+        {
+            try
+            {
+                var bookingByPlayerId = await _context.RoomBookings
+                    .FirstOrDefaultAsync(b => b.Id == playerId);
+            
+                return bookingByPlayerId;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving room booking for player with ID {playerId}.");
+                throw;
+            }
+        }
+
+        // Returns all RoomBooking entities from the database.
+        public async Task<List<RoomBooking>> GetAllBookings()
+        {
+            try
+            {
+                return await _context.RoomBookings.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving all room bookings from the database.");
+                throw;
+            }
+        }
     }
 }

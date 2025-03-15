@@ -22,6 +22,26 @@ namespace gameroombookingsys
                 entity.Property(e => e.BookingDateTime)
                .HasColumnType("datetime2");
             });
+
+            // Configure many-to-many relationship between RoomBooking and Device using an auto join table.
+            modelBuilder.Entity<RoomBooking>()
+                .HasMany(rb => rb.Devices)
+                .WithMany(d => d.RoomBookings)
+                .UsingEntity<Dictionary<string, object>>(
+                    "DeviceRoomBooking",
+                    j => j
+                        .HasOne<Device>()
+                        .WithMany()
+                        .HasForeignKey("DeviceId")
+                        .HasConstraintName("FK_DeviceRoomBooking_Devices_DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade),
+                    j => j
+                        .HasOne<RoomBooking>()
+                        .WithMany()
+                        .HasForeignKey("RoomBookingId")
+                        .HasConstraintName("FK_DeviceRoomBooking_RoomBookings_RoomBookingId")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                );
         }
     }
 }

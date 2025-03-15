@@ -19,7 +19,7 @@ namespace gameroombookingsys.Controllers
 
         // POST api/gameroombookings/bookroom
         [HttpPost("bookgameroom")]
-        // Ensure Swagger sees PlayerDto
+        // Ensure Swagger sees RoomBookingDto
         [ProducesResponseType(typeof(RoomBookingDto), StatusCodes.Status200OK)]
         // Control the method name
         [SwaggerOperation(OperationId = "BookGameRoom")]
@@ -45,8 +45,8 @@ namespace gameroombookingsys.Controllers
         }
 
         // Put api/gameroombookings/{id}
-        [HttpPut("{id}")]
-        // Ensure Swagger sees PlayerDto
+        [HttpPut("booking/{id}")]
+        // Ensure Swagger sees RoomBookingDto
         [ProducesResponseType(typeof(RoomBookingDto), StatusCodes.Status200OK)]
         // Control the method name
         [SwaggerOperation(OperationId = "UpdateRoomBooking")]
@@ -73,43 +73,95 @@ namespace gameroombookingsys.Controllers
 
         // GET api/gameroombookings/upcomingbookings
         [HttpGet("upcomingbookings")]
-        // Ensure Swagger sees PlayerDto
-        [ProducesResponseType(typeof(RoomBookingDto), StatusCodes.Status200OK)]
-        // Control the method name
+        [ProducesResponseType(typeof(List<RoomBookingDto>), StatusCodes.Status200OK)]
         [SwaggerOperation(OperationId = "GetUpcomingBookings")]
-        public async Task<ActionResult> GetUpcomingBookings()
+        public async Task<ActionResult<List<RoomBookingDto>>> GetUpcomingBookings()
         {
-            return Ok("Upcoming room bookings");
+            try
+            {
+                var bookings = await _roomBookingService.GetUpcomingBookings();
+                return Ok(bookings);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
+            }
         }
 
         // GET api/gameroombookings/ongoingbookings
         [HttpGet("ongoingbookings")]
-        // Ensure Swagger sees PlayerDto
-        [ProducesResponseType(typeof(RoomBookingDto), StatusCodes.Status200OK)]
-        // Control the method name
+        [ProducesResponseType(typeof(List<RoomBookingDto>), StatusCodes.Status200OK)]
         [SwaggerOperation(OperationId = "GetOngoingBookings")]
-        public async Task<ActionResult> GetOngoingBookings()
+        public async Task<ActionResult<List<RoomBookingDto>>> GetOngoingBookings()
         {
-            return Ok("Ongoing room bookings");
+            try
+            {
+                var bookings = await _roomBookingService.GetOngoingBookings();
+                return Ok(bookings);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
+            }
         }
 
         // GET api/gameroombookings/historybookings
         [HttpGet("historybookings")]
-        // Ensure Swagger sees PlayerDto
-        [ProducesResponseType(typeof(RoomBookingDto), StatusCodes.Status200OK)]
-        // Control the method name
+        [ProducesResponseType(typeof(List<RoomBookingDto>), StatusCodes.Status200OK)]
         [SwaggerOperation(OperationId = "GetHistoryBookings")]
-        public async Task<ActionResult> GetHistoryBookings()
+        public async Task<ActionResult<List<RoomBookingDto>>> GetHistoryBookings()
         {
-            return Ok("History room bookings");
+            try
+            {
+                var bookings = await _roomBookingService.GetHistoryBookings();
+                return Ok(bookings);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
+            }
         }
 
         // GET api/gameroombookings/{id}
+        // (Assumes that you have added a GetRoomBookingById method in your service layer.)
         [HttpGet("{id}")]
-        public async Task<ActionResult> getRoomBookingbyId(int id)
+        [ProducesResponseType(typeof(RoomBookingDto), StatusCodes.Status200OK)]
+        [SwaggerOperation(OperationId = "GetRoomBookingById")]
+        public async Task<ActionResult<RoomBookingDto>> GetRoomBookingById(int id)
         {
-            return Ok("Room booking by id");
+            try
+            {
+                var booking = await _roomBookingService.GetRoomBookingById(id);
+                return Ok(booking);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
+            }
         }
 
+        [HttpGet("player/{playerId}")]
+        [ProducesResponseType(typeof(RoomBookingDto), StatusCodes.Status200OK)]
+        [SwaggerOperation(OperationId = "GetRoomBookingByPlayerId")]
+        public async Task<ActionResult<RoomBookingDto>> GetRoomBookingByPlayerId(int playerId)
+        {
+            try
+            {
+                var booking = await _roomBookingService.GetRoomBookingByPlayerId(playerId);
+                return Ok(booking);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
+            }
+        }
     }
 }
