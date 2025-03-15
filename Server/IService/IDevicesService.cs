@@ -2,7 +2,7 @@
 
 namespace gameroombookingsys.Interfaces
 {
-    public interface IDeviceService
+    public interface IDevicesService
     {
         Task<DeviceDto> AddDevice(DeviceDto deviceDto);
         Task<DeviceDto> UpdateDevice(DeviceDto deviceDto);

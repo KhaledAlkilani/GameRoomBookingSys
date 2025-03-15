@@ -5,11 +5,11 @@ using gameroombookingsys.IRepository;
 
 namespace Gameroombookingsys.Repository
 {
-    public class PlayerRepository : IPlayerRepository
+    public class PlayersRepository : IPlayersRepository
     {
         private readonly AppDbContext _context;
 
-        public PlayerRepository(AppDbContext context)
+        public PlayersRepository(AppDbContext context)
         {
             _context = context;
         }

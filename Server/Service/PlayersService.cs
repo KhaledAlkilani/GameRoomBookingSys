@@ -6,11 +6,11 @@ using gameroombookingsys.IRepository;
 
 namespace Gameroombookingsys.Services
 {
-    public class PlayerService : IPlayerService
+    public class PlayersService : IPlayersService
     {
-        private readonly IPlayerRepository _playerRepository;
+        private readonly IPlayersRepository _playerRepository;
 
-        public PlayerService(IPlayerRepository playerRepository)
+        public PlayersService(IPlayersRepository playerRepository)
         {
             _playerRepository = playerRepository;
         }

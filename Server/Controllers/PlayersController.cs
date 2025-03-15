@@ -3,20 +3,22 @@ using System.Security.Claims;
 using gameroombookingsys.Interfaces;
 using gameroombookingsys.DTOs;
 using Swashbuckle.AspNetCore.Annotations;
-using Gameroombookingsys.Services;
+using Microsoft.Extensions.Logging;
 
 [ApiController]
-[Route("api/player")]
-public class PlayerController : ControllerBase
+[Route("api/players")]
+public class PlayersController : ControllerBase
 {
-    private readonly IPlayerService _playerService;
+    private readonly IPlayersService _playerService;
+    private readonly ILogger<PlayersController> _logger;
 
-    public PlayerController(IPlayerService playerService)
+    public PlayersController(IPlayersService playerService, ILogger<PlayersController> logger)
     {
         _playerService = playerService;
+        _logger = logger;
     }
 
-    // GET api/player/profile
+    // GET api/players/profile
     [HttpGet("profile")]
     // Ensure Swagger sees PlayerDto
     [ProducesResponseType(typeof(PlayerDto), StatusCodes.Status200OK)]
@@ -29,6 +31,8 @@ public class PlayerController : ControllerBase
             // Retrieve the player's email from the authentication claims.
             //var email = User.FindFirst(ClaimTypes.Email)?.Value;
             var email = User.FindFirst(ClaimTypes.Email)?.Value ?? "khaledkelany@gmail.com";
+            _logger.LogInformation("Fetching player info for email: {Email}", email);
+
             if (string.IsNullOrEmpty(email))
             {
                 return Unauthorized("No email claim found.");
@@ -48,7 +52,7 @@ public class PlayerController : ControllerBase
         }
     }
 
-   // // GET api/player/{id}
+   // // GET api/players/{id}
    // [HttpGet("{id}")]
    // [ProducesResponseType(typeof(PlayerDto), StatusCodes.Status200OK)]
    // //Control the method name

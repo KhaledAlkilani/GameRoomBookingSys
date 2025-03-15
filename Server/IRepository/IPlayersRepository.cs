@@ -2,7 +2,7 @@
 
 namespace gameroombookingsys.IRepository
 {
-    public interface IPlayerRepository
+    public interface IPlayersRepository
     {
         Task<Player> GetPlayerByEmail(string email);
     }

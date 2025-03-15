@@ -6,18 +6,18 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace gameroombookingsys.Controllers
 {
     [ApiController]
-    [Route("api/device")]
-    public class DeviceController : ControllerBase
+    [Route("api/devices")]
+    public class DevicesController : ControllerBase
     {
 
-        private readonly IDeviceService _deviceService;
+        private readonly IDevicesService _deviceService;
 
-        public DeviceController(IDeviceService deviceService)
+        public DevicesController(IDevicesService deviceService)
         {
             _deviceService = deviceService;
         }
 
-        // GET api/device/devices
+        // GET api/devices/devices
         [HttpGet("devices")]
         // Ensure Swagger sees PlayerDto
         [ProducesResponseType(typeof(DeviceDto), StatusCodes.Status200OK)]
@@ -28,7 +28,7 @@ namespace gameroombookingsys.Controllers
             return Ok("All devices");
         }
 
-        // GET api/device/{id}
+        // GET api/devices/{id}
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(RoomBookingDto), StatusCodes.Status200OK)]
         //Control the method name

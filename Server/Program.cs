@@ -5,6 +5,8 @@ using gameroombookingsys.Interfaces;
 using Gameroombookingsys.Repository;
 using Gameroombookingsys.Services;
 using gameroombookingsys.IRepository;
+using gameroombookingsys.Repository;
+using gameroombookingsys.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,8 +22,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 // Repository & service registration
-builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
-builder.Services.AddScoped<IPlayerService, PlayerService>();
+builder.Services.AddScoped<IPlayersRepository, PlayersRepository>();
+builder.Services.AddScoped<IPlayersService, PlayersService>();
+builder.Services.AddScoped<IRoomBookingsRepository, RoomBookingsRepository>();
+builder.Services.AddScoped<IRoomBookingsService, RoomBookingsService>();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
