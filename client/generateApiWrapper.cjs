@@ -1,3 +1,4 @@
+// generateApiWrapper.js (example)
 const fs = require("fs");
 const path = require("path");
 
@@ -12,29 +13,27 @@ if (!fs.existsSync(servicesDir)) {
   process.exit(1);
 }
 
-// Step 1: Get all service files dynamically
+// Step 1: Get all service files
 const serviceFiles = fs
   .readdirSync(servicesDir)
   .filter((file) => file.endsWith(".ts"))
   .map((file) => file.replace(".ts", ""));
 
-// Step 2: Generate imports dynamically
+// Step 2: Import everything from each service
+// e.g., "import * as PlayerServiceExports from './services/PlayerService';"
 const imports = serviceFiles
-  .map((name) => `import { ${name} } from "./services/${name}";`)
+  .map((name) => `import * as ${name}Exports from "./services/${name}";`)
   .join("\n");
 
-// Step 3: Create the `api` object referencing class methods
-const apiObject = `export const api = {\n  ${serviceFiles
-  .map(
-    (name) =>
-      `get${name.replace("Service", "")}: ${name}.getApi${name.replace(
-        "Service",
-        ""
-      )},`
-  )
-  .join("\n  ")}\n};`;
+// Step 3: Create an api object that merges all named exports from each file
+// so you can do: api.PlayerServiceExports.getPlayerInfo()
+const apiObject = `
+export const api = {
+  ${serviceFiles.map((name) => `...${name}Exports`).join(",\n  ")}
+};
+`;
 
-// Step 4: Export models dynamically
+// Step 4: Export all models
 const modelsDir = path.join(__dirname, "src/api/models");
 const modelFiles = fs.existsSync(modelsDir)
   ? fs

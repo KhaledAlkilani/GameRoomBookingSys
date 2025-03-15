@@ -3,7 +3,7 @@ import { useState } from "react";
 import Header from "./Header";
 
 const LoginPage = () => {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState({});
   const [password, setPassword] = useState("");
 
   return (
