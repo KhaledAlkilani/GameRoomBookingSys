@@ -1,4 +1,5 @@
-﻿using gameroombookingsys.IRepository;
+﻿using gameroombookingsys.Enums;
+using gameroombookingsys.IRepository;
 using Gameroombookingsys.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -99,7 +100,7 @@ namespace gameroombookingsys.Repository
             {
                 // Assumes available devices have Status == DeviceStatus.Available.
                 return await _context.Devices
-                    .Where(d => d.Status == gameroombookingsys.Enums.DeviceStatus.Available)
+                    .Where(d => d.Status == DeviceStatus.Available)
                     .ToListAsync();
             }
             catch (Exception ex)
@@ -115,7 +116,7 @@ namespace gameroombookingsys.Repository
             {
                 // Assumes unavailable devices have Status != Available.
                 return await _context.Devices
-                    .Where(d => d.Status != gameroombookingsys.Enums.DeviceStatus.Available)
+                    .Where(d => d.Status == DeviceStatus.Maintenance)
                     .ToListAsync();
             }
             catch (Exception ex)
@@ -123,6 +124,12 @@ namespace gameroombookingsys.Repository
                 _logger.LogError(ex, "Error retrieving unavailable devices in repository.");
                 throw;
             }
+        }
+
+        public Task<Device> GetDeviceByName(string name)
+        {
+           var device = _context.Devices.FirstOrDefaultAsync(d => d.Name == name);
+            return device;
         }
     }
 }

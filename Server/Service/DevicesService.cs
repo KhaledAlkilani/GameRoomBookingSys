@@ -20,6 +20,10 @@ namespace gameroombookingsys.Service
         {
             try
             {
+                var existingDevice = await _repository.GetDeviceByName(deviceDto.Name);
+                if (existingDevice != null)
+                    throw new InvalidOperationException("Device already exists."); 
+
                 var deviceEntity = new Device
                 {
                     Name = deviceDto.Name,
@@ -27,7 +31,7 @@ namespace gameroombookingsys.Service
                     Quantity = deviceDto.Quantity,
                     Status = deviceDto.Status,
                     PlayerId = deviceDto.PlayerId
-                };
+                }; 
 
                 var addedDevice = await _repository.AddDevice(deviceEntity);
 

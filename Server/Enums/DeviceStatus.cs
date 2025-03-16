@@ -2,9 +2,7 @@
 {
     public enum DeviceStatus
     {
-        Available,
-        Unavailable,
-        Maintenance,
-        Reserved
+        Available, 
+        Maintenance
     }
 }

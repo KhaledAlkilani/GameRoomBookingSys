@@ -11,5 +11,7 @@ namespace gameroombookingsys.IRepository
         Task<List<Device>> GetAllDevices();
         Task<List<Device>> GetAvailableDevices();
         Task<List<Device>> GetUnavailableDevices();
+
+        Task<Device> GetDeviceByName(string name);
     }
 }
