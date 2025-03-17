@@ -1,18 +1,21 @@
-import { BrowserRouter,Route, Routes } from "react-router-dom";
-import PlayerProfile from "./components/PlayerProfile";
-import LoginPage from "./components/LoginPage";
-import BookingForm from "./components/BookingForm";
-
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import Login from "./components/Login/Login";
+import PlayerProfile from "./components/Player/PlayerProfile";
 
 function App() {
   return (
-    <BrowserRouter>  {/* Make sure this wrapper is present */}
+    <Router>
       <Routes>
-      <Route path="/" element={<LoginPage />} />
-      <Route path="/playerProfile" element={<PlayerProfile />} />
-        <Route path="/bookingform" element={< BookingForm />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/profile" element={<PlayerProfile />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
 

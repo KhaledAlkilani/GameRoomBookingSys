@@ -3,16 +3,16 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { BookingStatus } from './BookingStatus';
-import type { Device } from './Device';
+import type { DeviceDto } from './DeviceDto';
 export type RoomBookingDto = {
     id?: number;
     createdAt?: string;
     updatedAt?: string;
     bookingDateTime?: string;
     duration?: string;
-    devices?: Array<Device> | null;
+    devices?: Array<DeviceDto> | null;
     isPlayingAlone?: boolean;
-    fellows?: Array<number> | null;
+    fellows?: number;
     status?: BookingStatus;
 };
 

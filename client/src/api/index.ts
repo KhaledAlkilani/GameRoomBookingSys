@@ -8,12 +8,12 @@ export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
 export { BookingStatus } from './models/BookingStatus';
-export type { Device } from './models/Device';
 export type { DeviceDto } from './models/DeviceDto';
 export { DeviceStatus } from './models/DeviceStatus';
 export type { PlayerDto } from './models/PlayerDto';
 export type { RoomBookingDto } from './models/RoomBookingDto';
 
-export { DeviceService } from './services/DeviceService';
-export { PlayerService } from './services/PlayerService';
-export { RoomBookingService } from './services/RoomBookingService';
+export { DevicesService } from './services/DevicesService';
+export { PlayersService } from './services/PlayersService';
+export { RoomBookingsService } from './services/RoomBookingsService';
+export { TokenService } from './services/TokenService';

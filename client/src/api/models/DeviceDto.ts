@@ -9,8 +9,8 @@ export type DeviceDto = {
     updatedAt?: string;
     name?: string | null;
     description?: string | null;
-    quantity?: number;
+    quantity?: number | null;
     status?: DeviceStatus;
-    playerId?: number;
+    playerId?: number | null;
 };
 
