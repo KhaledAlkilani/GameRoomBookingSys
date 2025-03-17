@@ -3,17 +3,19 @@ import { CircularProgress, Box } from "@mui/material";
 
 const Loader: React.FC = () => {
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100%",
-      }}
-    >
+    <Box sx={styles.loader}>
       <CircularProgress />
     </Box>
   );
 };
 
 export default Loader;
+
+const styles = {
+  loader: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100%",
+  },
+};

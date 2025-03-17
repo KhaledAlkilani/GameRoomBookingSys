@@ -128,7 +128,7 @@ const styles = {
   },
   paper: {
     p: 4,
-    opacity: 0.9,
+    opacity: 0.94,
   },
   linksRow: {
     mt: 2,

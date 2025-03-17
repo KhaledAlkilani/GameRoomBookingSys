@@ -30,7 +30,7 @@ const PlayerProfile = () => {
         );
         setLoader(false);
       });
-  }, [navigate, setLoader]);
+  }, [navigate]);
 
   if (error)
     return (
