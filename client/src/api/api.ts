@@ -1,17 +1,18 @@
-import * as DeviceServiceExports from "./services/DeviceService";
-import * as PlayerServiceExports from "./services/PlayerService";
-import * as RoomBookingServiceExports from "./services/RoomBookingService";
+import * as DevicesServiceExports from "./services/DevicesService";
+import * as PlayersServiceExports from "./services/PlayersService";
+import * as RoomBookingsServiceExports from "./services/RoomBookingsService";
+import * as TokenServiceExports from "./services/TokenService";
 
 
 export const api = {
-  ...DeviceServiceExports,
-  ...PlayerServiceExports,
-  ...RoomBookingServiceExports
+  ...DevicesServiceExports,
+  ...PlayersServiceExports,
+  ...RoomBookingsServiceExports,
+  ...TokenServiceExports
 };
 
 
 export * from "./models/BookingStatus";
-export * from "./models/Device";
 export * from "./models/DeviceDto";
 export * from "./models/DeviceStatus";
 export * from "./models/PlayerDto";

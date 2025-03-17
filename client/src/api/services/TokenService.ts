@@ -2,19 +2,24 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { PlayerDto } from '../models/PlayerDto';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
-export class PlayerService {
+export class TokenService {
     /**
-     * @returns PlayerDto OK
+     * @param email
+     * @returns any OK
      * @throws ApiError
      */
-    public static getPlayerInfo(): CancelablePromise<PlayerDto> {
+    public static getApiTokenGenerate(
+        email?: string,
+    ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/player/profile',
+            url: '/api/token/generate',
+            query: {
+                'email': email,
+            },
         });
     }
 }
