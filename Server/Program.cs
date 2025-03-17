@@ -5,7 +5,15 @@ using gameroombookingsys.Interfaces;
 using Gameroombookingsys.Repository;
 using Gameroombookingsys.Services;
 using gameroombookingsys.IRepository;
+using gameroombookingsys.Repository;
+using gameroombookingsys.Service;
+using gameroombookingsys.Helpers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.IdentityModel.Tokens.Jwt;
 
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -20,8 +28,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(connectionString));
 
 // Repository & service registration
-builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
-builder.Services.AddScoped<IPlayerService, PlayerService>();
+builder.Services.AddScoped<IPlayersRepository, PlayersRepository>();
+builder.Services.AddScoped<IPlayersService, PlayersService>();
+builder.Services.AddScoped<IRoomBookingsRepository, RoomBookingsRepository>();
+builder.Services.AddScoped<IRoomBookingsService, RoomBookingsService>();
+builder.Services.AddScoped<IDevicesRepository, DevicesRepository>();
+builder.Services.AddScoped<IDevicesService, DevicesService>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<KeycloakHelper>();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -60,6 +74,50 @@ builder.Services.AddCors(options =>
     });
 });
 
+var secret = "gameroombookingsys_gameroombookingsys";
+var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret))
+{
+    KeyId = "1"
+};
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = key,
+            ValidAlgorithms = new[] { SecurityAlgorithms.HmacSha256 }
+        };
+
+        // Uncomment to add logging for JWT events
+        //options.Events = new JwtBearerEvents
+        //{
+        //    OnAuthenticationFailed = context =>
+        //    {
+        //        var logger = context.HttpContext.RequestServices
+        //            .GetRequiredService<ILoggerFactory>()
+        //            .CreateLogger("JwtBearer");
+        //        logger.LogError(context.Exception, "JWT Authentication failed!");
+        //        return Task.CompletedTask;
+        //    },
+        //    OnTokenValidated = context =>
+        //    {
+        //        var logger = context.HttpContext.RequestServices
+        //            .GetRequiredService<ILoggerFactory>()
+        //            .CreateLogger("JwtBearer");
+        //        logger.LogInformation("Token validated. Claims: {Claims}",
+        //            string.Join(", ", context.Principal.Claims.Select(c => $"{c.Type}={c.Value}")));
+        //        return Task.CompletedTask;
+        //    }
+        //};
+    });
+
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
 // Apply Middleware
@@ -76,6 +134,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 app.Run();
