@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Typography, Container, CircularProgress, Box } from "@mui/material";
+import { Typography, Container } from "@mui/material";
 import { api, PlayerDto } from "../api/api";
 import { useNavigate } from "react-router-dom";
 import Loader from "./Loader";
@@ -40,10 +40,10 @@ const PlayerProfile = () => {
     );
 
   return (
-    <Container style={{ marginTop: "2rem" }}>
+    <Container style={styles.container}>
       <Typography variant="h3">Player Profile</Typography>
       {error ? (
-        <Typography sx={{ p: 2, color: "red" }}>Error: {error}</Typography>
+        <Typography sx={styles.error}>Error: {error}</Typography>
       ) : loader ? (
         <Loader />
       ) : player ? (
@@ -61,3 +61,12 @@ const PlayerProfile = () => {
 };
 
 export default PlayerProfile;
+
+const styles = {
+  container: {
+    marginTop: "2rem",
+  },
+  error: {
+    color: "red",
+  },
+};

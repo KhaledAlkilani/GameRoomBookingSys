@@ -33,7 +33,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="sm" style={{ marginTop: "2rem" }}>
+    <Container maxWidth="sm" style={styles.container}>
       <Typography variant="h4" gutterBottom>
         Login
       </Typography>
@@ -61,3 +61,9 @@ const Login: React.FC = () => {
 };
 
 export default Login;
+
+const styles = {
+  container: {
+    marginTop: "2rem",
+  },
+};
