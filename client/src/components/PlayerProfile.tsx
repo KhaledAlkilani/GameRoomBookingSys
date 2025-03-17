@@ -1,43 +1,62 @@
 import { useEffect, useState } from "react";
-import { Typography } from "@mui/material";
+import { Typography, Container, CircularProgress, Box } from "@mui/material";
 import { api, PlayerDto } from "../api/api";
+import { useNavigate } from "react-router-dom";
+import Loader from "./Loader";
+import { useLoader } from "../hooks/useLoader";
 
 const PlayerProfile = () => {
-  const [player, setPlayer] = useState<PlayerDto>({});
+  const { loader, setLoader } = useLoader();
+
+  const [player, setPlayer] = useState<PlayerDto | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    api.PlayerService.getPlayerInfo()
-      .then(setPlayer)
-      .catch(() =>
+    const token = localStorage.getItem("jwtToken");
+    if (!token) {
+      navigate("/");
+      return;
+    }
+    setLoader(true);
+    api.PlayersService.getPlayerInfo()
+      .then((playerData) => {
+        setPlayer(playerData);
+        setLoader(false);
+      })
+      .catch(() => {
         setError(
           "Server is offline or an error occurred. Please try again later."
-        )
-      );
-  }, []);
+        );
+        setLoader(false);
+      });
+  }, [navigate, setLoader]);
 
   if (error)
-    return <Typography sx={{ p: 2, color: "red" }}>{error}</Typography>;
+    return (
+      <Container>
+        <Typography sx={{ p: 2, color: "red" }}>{error}</Typography>
+      </Container>
+    );
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "start",
-        flexDirection: "column",
-        alignItems: "center",
-        height: "100%",
-      }}
-    >
-      <h1>Players</h1>
-      <div>
-        <ul>
-          <li key={player.id}>
-            {player.email} {player.pictureUrl}
-          </li>
-        </ul>
-      </div>
-    </div>
+    <Container style={{ marginTop: "2rem" }}>
+      <Typography variant="h3">Player Profile</Typography>
+      {error ? (
+        <Typography sx={{ p: 2, color: "red" }}>Error: {error}</Typography>
+      ) : loader ? (
+        <Loader />
+      ) : player ? (
+        <div>
+          <Typography variant="body1">Email: {player.email}</Typography>
+          <Typography variant="body1">Username: {player.username}</Typography>
+          <Typography variant="body1">Phone: {player.phoneNumber}</Typography>
+          <Typography variant="body1">Theme: {player.theme}</Typography>
+        </div>
+      ) : (
+        <Typography>No player data found.</Typography>
+      )}
+    </Container>
   );
 };
 
