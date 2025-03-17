@@ -4,8 +4,8 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import Login from "./components/Login";
-import PlayerProfile from "./components/PlayerProfile";
+import Login from "./components/Login/Login";
+import PlayerProfile from "./components/Player/PlayerProfile";
 
 function App() {
   return (
@@ -13,7 +13,6 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/profile" element={<PlayerProfile />} />
-        {/* Redirect any unknown route to login */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>

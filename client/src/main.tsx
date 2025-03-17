@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import { OpenAPI } from "./api/core/OpenAPI.ts";
+import "./App.css";
 
 function initApiHeadersFromStorage() {
   const token = localStorage.getItem("jwtToken");
