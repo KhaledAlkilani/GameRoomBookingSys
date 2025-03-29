@@ -1,58 +1,30 @@
-import { useEffect, useState } from "react";
-import { Typography, Container } from "@mui/material";
-import { api, PlayerDto } from "../../api/api";
-import { useNavigate } from "react-router-dom";
+import { Typography, Container, Box } from "@mui/material";
 import Loader from "../Reusable/Loader";
-import { useLoader } from "../../hooks/useLoader";
+import { usePlayerInfo } from "../../hooks/usePlayerInfo";
+import UnknownProfilePic from "../../assets/UnknownProfilePic.svg";
 
 const PlayerProfile = () => {
-  const { loader, setLoader } = useLoader();
-
-  const [player, setPlayer] = useState<PlayerDto | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const token = localStorage.getItem("jwtToken");
-    if (!token) {
-      navigate("/");
-      return;
-    }
-    setLoader(true);
-    api.PlayersService.getPlayerInfo()
-      .then((playerData) => {
-        setPlayer(playerData);
-        setLoader(false);
-      })
-      .catch(() => {
-        setError(
-          "Server is offline or an error occurred. Please try again later."
-        );
-        setLoader(false);
-      });
-  }, [navigate]);
-
-  if (error)
-    return (
-      <Container>
-        <Typography sx={{ p: 2, color: "red" }}>{error}</Typography>
-      </Container>
-    );
+  const { data, loading, error } = usePlayerInfo();
 
   return (
-    <Container style={styles.container}>
-      <Typography variant="h3">Player Profile</Typography>
+    <Container sx={styles.container}>
       {error ? (
         <Typography sx={styles.error}>Error: {error}</Typography>
-      ) : loader ? (
+      ) : loading ? (
         <Loader />
-      ) : player ? (
-        <div>
-          <Typography variant="body1">Email: {player.email}</Typography>
-          <Typography variant="body1">Username: {player.username}</Typography>
-          <Typography variant="body1">Phone: {player.phoneNumber}</Typography>
-          <Typography variant="body1">Theme: {player.theme}</Typography>
-        </div>
+      ) : data ? (
+        <>
+          <Box>
+            <Typography variant="h3">Player Profile</Typography>
+            <Typography variant="body1">Email: {data.email}</Typography>
+            <Typography variant="body1">Username: {data.username}</Typography>
+            <Typography variant="body1">Phone: {data.phoneNumber}</Typography>
+            <Typography variant="body1">Theme: {data.theme}</Typography>
+          </Box>
+          <Box sx={{ display: "flex", justifyContent: "center" }}>
+            <img src={UnknownProfilePic} width={"100%"} alt="Profile pic" />
+          </Box>
+        </>
       ) : (
         <Typography>No player data found.</Typography>
       )}
@@ -65,6 +37,9 @@ export default PlayerProfile;
 const styles = {
   container: {
     marginTop: "2rem",
+    display: "grid",
+    gridTemplateColumns: "80% 20%",
+    gap: "1rem",
   },
   error: {
     color: "red",

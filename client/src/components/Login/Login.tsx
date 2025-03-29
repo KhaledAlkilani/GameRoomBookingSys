@@ -33,7 +33,7 @@ const Login: React.FC = () => {
   const handleLogin = async () => {
     // Validate email domain
     if (!playerDto.email?.endsWith("@edu.xamk.fi")) {
-      setError("Only school emails ending with '@edu.xamk.fi' are allowed.");
+      setError("Only university emails are allowed.");
       return;
     }
 

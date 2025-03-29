@@ -1,22 +1,21 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./components/Login/Login";
 import PlayerProfile from "./components/Player/PlayerProfile";
+import BookingForm from "./components/GameRoomBookingForm/BookingForm";
+import Root from "./components/Routes/Root";
 
-function App() {
+const App = () => {
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/profile" element={<PlayerProfile />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route element={<Root />}>
+          <Route path="/profile" element={<PlayerProfile />} />
+          <Route path="/new-booking" element={<BookingForm />} />
+        </Route>
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
-}
+};
 
 export default App;

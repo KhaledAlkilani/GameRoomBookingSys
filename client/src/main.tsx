@@ -13,7 +13,7 @@ function initApiHeadersFromStorage() {
   }
 }
 
-// Initialize once at startup
+// Initialize API headers once at startup
 initApiHeadersFromStorage();
 
 createRoot(document.getElementById("root")!).render(
