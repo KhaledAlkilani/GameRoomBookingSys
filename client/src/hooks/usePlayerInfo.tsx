@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { api, PlayerDto } from "../api/api";
 
 export const usePlayerInfo = () => {
-  const [data, setData] = useState<PlayerDto | null>(null);
+  const [playerInfo, setPlayerInfo] = useState<PlayerDto | null>(null);
   const [loading, setLoading] = useState<Boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -10,7 +10,7 @@ export const usePlayerInfo = () => {
     setLoading(true);
     api.PlayersService.getPlayerInfo()
       .then((playerData) => {
-        setData(playerData);
+        setPlayerInfo(playerData);
         setLoading(false);
       })
       .catch(() => {
@@ -21,5 +21,5 @@ export const usePlayerInfo = () => {
       });
   }, []);
 
-  return { data, error, loading };
+  return { playerInfo, error, loading, setPlayerInfo };
 };

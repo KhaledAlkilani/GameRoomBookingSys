@@ -2,12 +2,14 @@
 using Microsoft.EntityFrameworkCore;
 using gameroombookingsys;
 using gameroombookingsys.IRepository;
+using gameroombookingsys.Service;
 
 namespace Gameroombookingsys.Repository
 {
     public class PlayersRepository : IPlayersRepository
     {
         private readonly AppDbContext _context;
+        private readonly ILogger<PlayersRepository> _logger;
 
         public PlayersRepository(AppDbContext context)
         {
@@ -31,7 +33,20 @@ namespace Gameroombookingsys.Repository
             var players = await _context.Players.ToListAsync();
             return players;
         }
-
+        public async Task<Player> UpdatePlayer(Player player)
+        {
+            try
+            {
+                _context.Players.Update(player);
+                await _context.SaveChangesAsync();
+                return player;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating player in repository.");
+                throw new Exception("Error updating player in repository.", ex);
+            }
+        }
 
     }
 }

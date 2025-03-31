@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { navButtons } from "./Data";
 import { useState } from "react";
 import AppTitle from "../../assets/APP-TITLE.svg";
+import { AppThemeSwitch } from "../AppThemeSwitch";
 
 const Navigation = () => {
   const location = useLocation();
@@ -39,7 +40,7 @@ export default Navigation;
 
 const styles = {
   container: {
-    width: "17%",
+    width: "20%",
     padding: 3,
     backgroundColor: "#F3A93A",
   },
