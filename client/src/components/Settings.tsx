@@ -1,8 +1,7 @@
-import React from "react";
 import { AppThemeSwitch } from "./AppThemeSwitch";
 import { Box, Typography } from "@mui/material";
 
-const Settings: React.FC = () => {
+const Settings = () => {
   return (
     <Box sx={styles.container}>
       <Typography sx={styles.title}>Settings</Typography>
