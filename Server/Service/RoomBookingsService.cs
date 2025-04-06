@@ -1,30 +1,59 @@
 ﻿
 using gameroombookingsys.DTOs;
 using gameroombookingsys.Enums;
+using gameroombookingsys.Helpers;
 using gameroombookingsys.Interfaces;
 using gameroombookingsys.IRepository;
 using Gameroombookingsys.Models;
+using Gameroombookingsys.Repository;
 
 namespace gameroombookingsys.Service
 {
     public class RoomBookingsService : IRoomBookingsService
     {
         private readonly IRoomBookingsRepository _repository;
+        private readonly IPlayersRepository _playersRepository;
         private readonly ILogger<RoomBookingsService> _logger;
-        public RoomBookingsService(IRoomBookingsRepository repository, ILogger<RoomBookingsService> logger)
+        private readonly KeycloakHelper _keycloakHelper;
+        public RoomBookingsService(IRoomBookingsRepository repository,
+        IPlayersRepository playersRepository,
+        ILogger<RoomBookingsService> logger,
+        KeycloakHelper keycloakHelper)
         {
             _repository = repository;
+            _playersRepository = playersRepository;
             _logger = logger;
+            _keycloakHelper = keycloakHelper;
         }
         public async Task<RoomBookingDto> BookGameRoom(RoomBookingDto dto)
         {
             try
             {
-                // Validate input
+                // Get the authenticated user's email from the HttpContext via KeycloakHelper
+                var email = _keycloakHelper.GetUserEmail();
+                if (string.IsNullOrEmpty(email))
+                    throw new Exception("User not authenticated.");
+
+                // Look up the player by email
+                var player = await _playersRepository.GetPlayerByEmail(email);
+                if (player == null)
+                    throw new Exception("Player not found for the authenticated user.");
+
+                // Set the booking's playerId to the authenticated player's ID
+                dto.PlayerId = player.Id;
+
+                // Validate booking date/time
                 if (dto.BookingDateTime == default)
                     throw new ArgumentException("Booking date/time is required.");
-                if (dto.Duration <= TimeSpan.Zero)
+                if (dto.BookingDateTime <= DateTime.Now)
+                    throw new ArgumentException("Booking date/time must be in the future.");
+
+                // Validate duration: must be > 0 and <= 2 hours.
+                if (dto.Duration <= 0)
                     throw new ArgumentException("Duration must be greater than zero.");
+                if (dto.Duration > 2)
+                    throw new ArgumentException("Duration must be 2 hours or less.");
+
                 if (dto.isPlayingAlone && dto.Fellows > 0)
                     throw new ArgumentException("You cannot play alone and have fellows at the same time.");
                 if (!dto.isPlayingAlone && dto.Fellows == 0)
@@ -47,7 +76,8 @@ namespace gameroombookingsys.Service
                     Duration = dto.Duration,
                     isPlayingAlone = dto.isPlayingAlone,
                     Fellows = dto.Fellows,
-                    Status = dto.Status
+                    Status = dto.Status,
+                    PlayerId = dto.PlayerId
                 };
 
                 // Convert each DeviceDto -> Device and add to booking.Devices
@@ -79,8 +109,7 @@ namespace gameroombookingsys.Service
                 _logger.LogError(ex, "Error occurred in BookGameRoom in service.");
                 throw;
             }
-        }
-
+        } 
         public async Task<RoomBookingDto> UpdateRoomBooking(int id, RoomBookingDto dto)
         {
             try
@@ -125,7 +154,7 @@ namespace gameroombookingsys.Service
                         {
                             var device = new Device
                             {
-                                Id = deviceDto.Id, // If existing device, set the ID
+                                Id = deviceDto.Id,  
                                 Name = deviceDto.Name,
                                 Description = deviceDto.Description,
                                 Quantity = deviceDto.Quantity,
@@ -141,27 +170,7 @@ namespace gameroombookingsys.Service
                 var updatedBooking = await _repository.UpdateRoomBooking(booking);
 
                 // Map updated entity back to DTO
-                var updatedDto = new RoomBookingDto
-                {
-                    Id = updatedBooking.Id,
-                    BookingDateTime = updatedBooking.BookingDateTime,
-                    Duration = updatedBooking.Duration,
-                    isPlayingAlone = updatedBooking.isPlayingAlone,
-                    Fellows = updatedBooking.Fellows,
-                    Status = updatedBooking.Status,
-                    Devices = updatedBooking.Devices
-                        .Select(d => new DeviceDto
-                        {
-                            Id = d.Id,
-                            Name = d.Name,
-                            Description = d.Description,
-                            Quantity = d.Quantity,
-                            Status = d.Status,
-                            PlayerId = d.PlayerId
-                        })
-                        .ToList()
-                };
-
+                var updatedDto = new RoomBookingDto(updatedBooking);
                 return updatedDto;
             }
             catch (Exception ex)
@@ -173,15 +182,14 @@ namespace gameroombookingsys.Service
 
         private void UpdateBookingStatus(RoomBooking booking)
         {
-            // Only update status if the booking hasn't been cancelled.
             if (booking.Status != BookingStatus.Cancelled)
             {
                 var now = DateTime.Now;
-                if (now >= booking.BookingDateTime && now < booking.BookingDateTime.Add(booking.Duration))
+                if (now >= booking.BookingDateTime && now < booking.BookingDateTime.AddHours(booking.Duration))
                 {
                     booking.Status = BookingStatus.Ongoing;
                 }
-                else if (now >= booking.BookingDateTime.Add(booking.Duration))
+                else if (now >= booking.BookingDateTime.AddHours(booking.Duration))
                 {
                     booking.Status = BookingStatus.Completed;
                 }
@@ -190,29 +198,6 @@ namespace gameroombookingsys.Service
                     booking.Status = BookingStatus.Upcoming;
                 }
             }
-        }
-        private RoomBookingDto MapToDto(RoomBooking booking)
-        {
-            return new RoomBookingDto
-            {
-                Id = booking.Id,
-                BookingDateTime = booking.BookingDateTime,
-                Duration = booking.Duration,
-                isPlayingAlone = booking.isPlayingAlone,
-                Fellows = booking.Fellows,
-                Status = booking.Status,
-                Devices = booking.Devices
-                    .Select(d => new DeviceDto
-                    {
-                        Id = d.Id,
-                        Name = d.Name,
-                        Description = d.Description,
-                        Quantity = d.Quantity,
-                        Status = d.Status,
-                        PlayerId = d.PlayerId
-                    })
-                    .ToList()
-            };
         }
 
         public async Task<List<RoomBookingDto>> GetAllBookings()
@@ -226,7 +211,7 @@ namespace gameroombookingsys.Service
                 {
                     UpdateBookingStatus(booking);
                 }
-                return bookings.Select(b => MapToDto(b)).ToList();
+                return bookings.Select(b => new RoomBookingDto(b)).ToList();
             }
             catch (Exception ex)
             {
@@ -246,7 +231,7 @@ namespace gameroombookingsys.Service
                 }
                 // Filter bookings marked as Completed.
                 var historyBookings = bookings.Where(b => b.Status == BookingStatus.Completed).ToList();
-                return historyBookings.Select(b => MapToDto(b)).ToList();
+                return historyBookings.Select(b => new RoomBookingDto(b)).ToList();
             }
             catch (Exception ex)
             {
@@ -266,7 +251,7 @@ namespace gameroombookingsys.Service
                 }
                 // Filter bookings marked as Ongoing.
                 var ongoingBookings = bookings.Where(b => b.Status == BookingStatus.Ongoing).ToList();
-                return ongoingBookings.Select(b => MapToDto(b)).ToList();
+                return ongoingBookings.Select(b => new RoomBookingDto(b)).ToList();
             }
             catch (Exception ex)
             {
@@ -286,7 +271,7 @@ namespace gameroombookingsys.Service
                 }
                 // Filter bookings marked as Upcoming.
                 var upcomingBookings = bookings.Where(b => b.Status == BookingStatus.Upcoming).ToList();
-                return upcomingBookings.Select(b => MapToDto(b)).ToList();
+                return upcomingBookings.Select(b => new RoomBookingDto(b)).ToList();
             }
             catch (Exception ex)
             {
@@ -308,7 +293,7 @@ namespace gameroombookingsys.Service
                 // Persist any status changes.
                 var updatedBooking = await _repository.UpdateRoomBooking(booking);
 
-                return MapToDto(updatedBooking);
+                return new RoomBookingDto(updatedBooking);
             }
             catch (Exception ex)
             {
@@ -333,7 +318,7 @@ namespace gameroombookingsys.Service
                 var updatedBooking = await _repository.UpdateRoomBooking(booking);
 
                 // Map the updated entity to a DTO and return it.
-                return MapToDto(updatedBooking);
+                return new RoomBookingDto(updatedBooking);
             }
             catch (Exception ex)
             {

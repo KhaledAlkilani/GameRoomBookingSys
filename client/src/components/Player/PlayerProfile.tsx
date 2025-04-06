@@ -111,25 +111,6 @@ const PlayerProfile = () => {
               </label>
             </Button>
           </Box>
-
-          {/* <Box sx={styles.formButtons}>
-          <Button
-            variant="contained"
-            onClick={handleUpdatePlayerInfo}
-            disabled={!isChanged}
-          >
-            Save
-          </Button>
-          <Button
-            variant="outlined"
-            sx={{ borderColor: "red", color: "red" }}
-            onClick={() => {
-              setPlayerInfo(originalPlayerInfo!);
-            }}
-          >
-            Cancel
-          </Button>
-        </Box> */}
         </Box>
       </Box>
       <Box sx={styles.formButtons}>

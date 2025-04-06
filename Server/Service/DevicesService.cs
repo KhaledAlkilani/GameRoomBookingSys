@@ -35,15 +35,8 @@ namespace gameroombookingsys.Service
 
                 var addedDevice = await _repository.AddDevice(deviceEntity);
 
-                return new DeviceDto
-                {
-                    Id = addedDevice.Id,
-                    Name = addedDevice.Name,
-                    Description = addedDevice.Description,
-                    Quantity = addedDevice.Quantity,
-                    Status = addedDevice.Status,
-                    PlayerId = addedDevice.PlayerId
-                };
+                return new DeviceDto(addedDevice); // Map to DTO
+
             }
             catch (Exception ex)
             {
@@ -68,15 +61,7 @@ namespace gameroombookingsys.Service
 
                 var updatedDevice = await _repository.UpdateDevice(existingDevice);
 
-                return new DeviceDto
-                {
-                    Id = updatedDevice.Id,
-                    Name = updatedDevice.Name,
-                    Description = updatedDevice.Description,
-                    Quantity = updatedDevice.Quantity,
-                    Status = updatedDevice.Status,
-                    PlayerId = updatedDevice.PlayerId
-                };
+                return new DeviceDto(updatedDevice);
             }
             catch (Exception ex)
             {
@@ -90,15 +75,7 @@ namespace gameroombookingsys.Service
             try
             {
                 var deletedDevice = await _repository.DeleteDevice(deviceId);
-                return new DeviceDto
-                {
-                    Id = deletedDevice.Id,
-                    Name = deletedDevice.Name,
-                    Description = deletedDevice.Description,
-                    Quantity = deletedDevice.Quantity,
-                    Status = deletedDevice.Status,
-                    PlayerId = deletedDevice.PlayerId
-                };
+                return new DeviceDto(deletedDevice);
             }
             catch (Exception ex)
             {
@@ -112,15 +89,7 @@ namespace gameroombookingsys.Service
             try
             {
                 var device = await _repository.GetDeviceById(deviceId);
-                return new DeviceDto
-                {
-                    Id = device.Id,
-                    Name = device.Name,
-                    Description = device.Description,
-                    Quantity = device.Quantity,
-                    Status = device.Status,
-                    PlayerId = device.PlayerId
-                };
+                return new DeviceDto(device);
             }
             catch (Exception ex)
             {
@@ -134,15 +103,7 @@ namespace gameroombookingsys.Service
             try
             {
                 var devices = await _repository.GetAllDevices();
-                return devices.Select(d => new DeviceDto
-                {
-                    Id = d.Id,
-                    Name = d.Name,
-                    Description = d.Description,
-                    Quantity = d.Quantity,
-                    Status = d.Status,
-                    PlayerId = d.PlayerId
-                }).ToList();
+                return devices.Select(d => new DeviceDto(d)).ToList();
             }
             catch (Exception ex)
             {
@@ -156,15 +117,7 @@ namespace gameroombookingsys.Service
             try
             {
                 var devices = await _repository.GetAvailableDevices();
-                return devices.Select(d => new DeviceDto
-                {
-                    Id = d.Id,
-                    Name = d.Name,
-                    Description = d.Description,
-                    Quantity = d.Quantity,
-                    Status = d.Status,
-                    PlayerId = d.PlayerId
-                }).ToList();
+                return devices.Select(d => new DeviceDto(d)).ToList();
             }
             catch (Exception ex)
             {
@@ -178,15 +131,7 @@ namespace gameroombookingsys.Service
             try
             {
                 var devices = await _repository.GetUnavailableDevices();
-                return devices.Select(d => new DeviceDto
-                {
-                    Id = d.Id,
-                    Name = d.Name,
-                    Description = d.Description,
-                    Quantity = d.Quantity,
-                    Status = d.Status,
-                    PlayerId = d.PlayerId
-                }).ToList();
+                return devices.Select(d => new DeviceDto(d)).ToList();
             }
             catch (Exception ex)
             {

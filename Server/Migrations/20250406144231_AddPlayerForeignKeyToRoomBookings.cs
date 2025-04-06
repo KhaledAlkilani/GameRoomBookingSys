@@ -5,7 +5,7 @@
 namespace gameroombookingsys.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdatesToModels3 : Migration
+    public partial class AddPlayerForeignKeyToRoomBookings : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

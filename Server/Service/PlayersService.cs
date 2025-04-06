@@ -59,15 +59,7 @@ namespace Gameroombookingsys.Services
         public async Task<List<PlayerDto>> GetAllPlayers()
         {
             var players = await _playerRepository.GetAllPlayers();
-            return players.Select(player => new PlayerDto
-            {
-                Id = player.Id,
-                Username = player.Username,
-                PictureUrl = player.PictureUrl,
-                PhoneNumber = player.PhoneNumber,
-                Email = player.Email,
-                Theme = player.Theme
-            }).ToList();
+            return players.Select(p => new PlayerDto(p)).ToList();
         }
         public async Task<PlayerDto> UpdatePlayerInfo(PlayerDto playerDto)
         {
@@ -85,15 +77,7 @@ namespace Gameroombookingsys.Services
 
                 var updatedPlayer = await _playerRepository.UpdatePlayer(player);
 
-                return new PlayerDto
-                {
-                    Id = updatedPlayer.Id,
-                    Username = updatedPlayer.Username,
-                    PictureUrl = updatedPlayer.PictureUrl,
-                    PhoneNumber = updatedPlayer.PhoneNumber,
-                    Email = updatedPlayer.Email,
-                    Theme = updatedPlayer.Theme
-                };
+                return new PlayerDto(updatedPlayer);
             }
             catch (Exception ex)
             {

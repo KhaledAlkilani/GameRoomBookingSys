@@ -3,6 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 export enum DeviceStatus {
-    '_0' = 0,
-    '_1' = 1,
+    AVAILABLE = 'Available',
+    MAINTENANCE = 'Maintenance',
 }

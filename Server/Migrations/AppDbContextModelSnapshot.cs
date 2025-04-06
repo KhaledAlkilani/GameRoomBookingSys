@@ -125,10 +125,13 @@ namespace gameroombookingsys.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<TimeSpan>("Duration")
-                        .HasColumnType("time");
+                    b.Property<double>("Duration")
+                        .HasColumnType("float");
 
                     b.Property<int>("Fellows")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PlayerId")
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
@@ -141,6 +144,8 @@ namespace gameroombookingsys.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PlayerId");
 
                     b.ToTable("RoomBookings");
                 });
@@ -160,6 +165,23 @@ namespace gameroombookingsys.Migrations
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired()
                         .HasConstraintName("FK_DeviceRoomBooking_RoomBookings_RoomBookingId");
+                });
+
+            modelBuilder.Entity("Gameroombookingsys.Models.RoomBooking", b =>
+                {
+                    b.HasOne("Gameroombookingsys.Models.Player", "Player")
+                        .WithMany("RoomBookings")
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RoomBookings_Players_PlayerId");
+
+                    b.Navigation("Player");
+                });
+
+            modelBuilder.Entity("Gameroombookingsys.Models.Player", b =>
+                {
+                    b.Navigation("RoomBookings");
                 });
 #pragma warning restore 612, 618
         }

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { TextField, Button, Box, Typography } from "@mui/material";
 import Autocomplete from "@mui/material/Autocomplete";
 import { DeviceDto, RoomBookingDto } from "../../api";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { StaticDateTimePicker } from "@mui/x-date-pickers/StaticDateTimePicker";
@@ -13,19 +13,19 @@ import Chip from "@mui/material/Chip";
 import { api } from "../../api/api";
 
 const initialBooking: RoomBookingDto = {
-  duration: "0",
-  isPlayingAlone: false,
-  fellows: 0,
+  duration: undefined,
+  isPlayingAlone: true,
+  fellows: undefined,
   devices: [],
 };
 
 const BookingForm = () => {
-  const [bookRoom, setBookRoom] = useState<RoomBookingDto>({});
+  const [bookRoom, setBookRoom] = useState<RoomBookingDto>(initialBooking);
   const [allDevices, setAllDevices] = useState<DeviceDto[]>([]);
   const [inputValue, setInputValue] = useState("");
 
   useEffect(() => {
-    api.DevicesService.getAllDevices() // or however you fetch
+    api.DevicesService.getAllDevices()
       .then((fetchedDevices) => {
         setAllDevices(fetchedDevices);
       })
@@ -34,31 +34,46 @@ const BookingForm = () => {
       });
   }, []);
 
+  const handleBookingDateTimeChange = (newValue: Dayjs | null) => {
+    setBookRoom((prev) => ({
+      ...prev,
+      bookingDateTime: newValue ? newValue.format("YYYY-MM-DDTHH:mm") : "",
+    }));
+  };
+
   const handleDuractionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setBookRoom({
-      ...bookRoom,
-      duration: e.target.value,
-    });
+    const value = e.target.value;
+    // Parse the value as a number (representing hours)
+    const numHours = parseInt(value, 10);
+    if (!isNaN(numHours)) {
+      // Store the duration as a number (in hours)
+      setBookRoom({
+        ...bookRoom,
+        duration: numHours,
+      });
+    } else {
+      // Fallback: set duration to undefined if parsing fails
+      setBookRoom({
+        ...bookRoom,
+        duration: undefined,
+      });
+    }
   };
 
-  const handlePlayingAloneChange = (
-    event: React.SyntheticEvent,
-    checked: boolean
-  ) => {
-    // If "Playing alone" is checked, set isPlayingAlone true and reset fellows to 0.
-    setBookRoom({
-      ...bookRoom,
-      isPlayingAlone: checked,
-      fellows: checked ? 0 : bookRoom.fellows,
-    });
+  const handlePlayingAloneChange = () => {
+    setBookRoom((prev) => ({
+      ...prev,
+      isPlayingAlone: true,
+      fellows: 0,
+    }));
   };
 
-  const handleWithFellowsChange = (
-    event: React.SyntheticEvent,
-    checked: boolean
-  ) => {
-    // If "With fellows" is checked then set isPlayingAlone to false.
-    setBookRoom({ ...bookRoom, isPlayingAlone: !checked });
+  const handleWithFellowsChange = () => {
+    setBookRoom((prev) => ({
+      ...prev,
+      isPlayingAlone: false,
+      fellows: undefined,
+    }));
   };
 
   const handleFellowsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -66,25 +81,53 @@ const BookingForm = () => {
   };
 
   const handleDeviceInputChange = (
-    event: React.SyntheticEvent,
+    _: React.SyntheticEvent,
     newInputValue: string
   ) => {
     setInputValue(newInputValue);
   };
 
   const handleDeviceSelect = (
-    event: React.SyntheticEvent,
+    _: React.SyntheticEvent,
     newValue: DeviceDto | null
   ) => {
     if (newValue) {
-      // Add the newly selected device to bookRoom.devices
       setBookRoom((prev) => ({
         ...prev,
         devices: [...(prev.devices || []), newValue],
       }));
     }
-    // Clear the text field
     setInputValue("");
+  }; 
+
+  const checkFieldsValidation = (): boolean => {
+    const isBookingDateTimeValid =
+      bookRoom.bookingDateTime !== initialBooking.bookingDateTime;
+
+    const durationNumber = parseInt(String(bookRoom.duration ?? ""), 10);
+    const isDurationValid =
+      !isNaN(durationNumber) &&
+      durationNumber > 0 &&
+      bookRoom.duration !== initialBooking.duration;
+
+    const isFellowsValid =
+      bookRoom.isPlayingAlone ||
+      (bookRoom.fellows !== undefined &&
+        bookRoom.fellows > 0 &&
+        bookRoom.fellows !== initialBooking.fellows);
+
+    return isBookingDateTimeValid && isDurationValid && isFellowsValid;
+  };
+
+  const handleRoomBooking = async () => {
+    if (checkFieldsValidation()) {
+      try {
+        const response = await api.RoomBookingsService.bookGameRoom(bookRoom);
+        console.log("Room booked successfully:", response);
+      } catch (error) {
+        console.error("Error booking room:", error);
+      }
+    }
   };
 
   return (
@@ -97,9 +140,12 @@ const BookingForm = () => {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <StaticDateTimePicker
                   orientation="portrait"
-                  onChange={() => {}}
-                  defaultValue={dayjs()}
-                  value={dayjs()}
+                  value={
+                    bookRoom.bookingDateTime
+                      ? dayjs(bookRoom.bookingDateTime)
+                      : dayjs()
+                  }
+                  onChange={handleBookingDateTimeChange}
                   localeText={{ toolbarTitle: "" }}
                   slots={{
                     actionBar: () => null,
@@ -124,15 +170,12 @@ const BookingForm = () => {
           </Box>
           <Box width="100%">
             <Autocomplete
-              // The full device list from your backend
               options={allDevices}
               getOptionLabel={(option) => option.name || ""}
-              // We always keep the selection "null" so it won't create chips in the field
               value={null}
               inputValue={inputValue}
               onInputChange={handleDeviceInputChange}
               onChange={handleDeviceSelect}
-              // Render no chips in the text field
               renderTags={() => null}
               renderInput={(params) => (
                 <TextField {...params} label="Devices" variant="standard" />
@@ -163,7 +206,7 @@ const BookingForm = () => {
                     onChange={handlePlayingAloneChange}
                   />
                 }
-                label="Playing alone *"
+                label="Playing alone"
                 sx={{ width: "30%", marginTop: 1 }}
               />
 
@@ -190,7 +233,7 @@ const BookingForm = () => {
                     id="outlined-helperText"
                     label="How many? *"
                     type="number"
-                    value={bookRoom.fellows || 0}
+                    value={bookRoom.fellows}
                     onChange={handleFellowsChange}
                     variant="standard"
                     sx={{ marginTop: -2 }}
@@ -203,7 +246,11 @@ const BookingForm = () => {
         </Box>
       </Box>
       <Box sx={styles.formButtons}>
-        <Button variant="contained" onClick={() => {}} disabled>
+        <Button
+          variant="contained"
+          onClick={handleRoomBooking}
+          disabled={!checkFieldsValidation()}
+        >
           Save
         </Button>
         <Button

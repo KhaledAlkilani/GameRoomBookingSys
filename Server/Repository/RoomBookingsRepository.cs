@@ -17,9 +17,9 @@ namespace gameroombookingsys.Repository
             _logger = logger;
         }
 
-        public async Task<bool> IsRoomAvailable(DateTime startTime, TimeSpan duration)
+        public async Task<bool> IsRoomAvailable(DateTime startTime, double duration)
         {
-            var requestedEndTime = startTime.Add(duration);
+            var requestedEndTime = startTime.AddHours(duration);
 
             // First, filter bookings that might overlap based on the start time and status
             var bookings = await _context.RoomBookings
@@ -28,7 +28,7 @@ namespace gameroombookingsys.Repository
                 .ToListAsync();
 
             // Then, use client evaluation (LINQ-to-Objects) to check for overlap
-            bool overlapExists = bookings.Any(b => b.BookingDateTime.Add(b.Duration) > startTime);
+            bool overlapExists = bookings.Any(b => b.BookingDateTime.AddHours(b.Duration) > startTime);
 
             return !overlapExists;
         }
