@@ -9,7 +9,7 @@ namespace gameroombookingsys.IRepository
         Task<RoomBooking> AddRoomBooking(RoomBooking booking);
         Task<RoomBooking> GetRoomBookingById(int id);
         Task<RoomBooking> UpdateRoomBooking(RoomBooking booking);
-        Task<RoomBooking> GetRoomBookingByPlayerId(int playerId);
+        Task<List<RoomBooking>> GetRoomBookingsByPlayerId(int playerId);
         Task<List<RoomBooking>> GetAllBookings();
 
     }

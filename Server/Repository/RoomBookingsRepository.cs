@@ -71,14 +71,15 @@ namespace gameroombookingsys.Repository
             }
         }
 
-        public async Task<RoomBooking> GetRoomBookingByPlayerId(int playerId)
+        public async Task<List<RoomBooking>> GetRoomBookingsByPlayerId(int playerId)
         {
             try
             {
-                var bookingByPlayerId = await _context.RoomBookings
-                    .FirstOrDefaultAsync(b => b.Id == playerId);
-            
-                return bookingByPlayerId;
+                var bookingsByPlayerId = await _context.RoomBookings
+           .Where(b => b.PlayerId == playerId)
+            .ToListAsync();
+
+                return bookingsByPlayerId;
             }
             catch (Exception ex)
             {

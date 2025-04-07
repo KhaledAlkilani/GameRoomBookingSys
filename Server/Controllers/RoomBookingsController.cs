@@ -146,13 +146,13 @@ namespace gameroombookingsys.Controllers
 
         [HttpGet("player/{playerId}")]
         [ProducesResponseType(typeof(RoomBookingDto), StatusCodes.Status200OK)]
-        [SwaggerOperation(OperationId = "GetRoomBookingByPlayerId")]
-        public async Task<ActionResult<RoomBookingDto>> GetRoomBookingByPlayerId(int playerId)
+        [SwaggerOperation(OperationId = "GetRoomBookingsByPlayerId")]
+        public async Task<ActionResult<List<RoomBookingDto>>> GetRoomBookingsByPlayerId(int playerId)
         {
             try
             {
-                var booking = await _roomBookingService.GetRoomBookingByPlayerId(playerId);
-                return Ok(booking);
+                var bookings = await _roomBookingService.GetRoomBookingsByPlayerId(playerId);
+                 return Ok(bookings);
             }
             catch (KeyNotFoundException ex)
             {
@@ -163,5 +163,23 @@ namespace gameroombookingsys.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
             }
         }
+
+        // Add this method in your RoomBookingsController
+        [HttpGet("allbookings")]
+        [ProducesResponseType(typeof(List<RoomBookingDto>), StatusCodes.Status200OK)]
+        [SwaggerOperation(OperationId = "GetAllBookings")]
+        public async Task<ActionResult<List<RoomBookingDto>>> GetAllBookings()
+        {
+            try
+            {
+                var bookings = await _roomBookingService.GetAllBookings();
+                return Ok(bookings);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
+            }
+        }
+
     }
 }

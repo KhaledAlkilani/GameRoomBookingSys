@@ -93,7 +93,7 @@ export class RoomBookingsService {
      * @returns RoomBookingDto OK
      * @throws ApiError
      */
-    public static getRoomBookingByPlayerId(
+    public static getRoomBookingsByPlayerId(
         playerId: number,
     ): CancelablePromise<RoomBookingDto> {
         return __request(OpenAPI, {
@@ -102,6 +102,16 @@ export class RoomBookingsService {
             path: {
                 'playerId': playerId,
             },
+        });
+    }
+    /**
+     * @returns RoomBookingDto OK
+     * @throws ApiError
+     */
+    public static getAllBookings(): CancelablePromise<Array<RoomBookingDto>> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/gameroombookings/allbookings',
         });
     }
 }

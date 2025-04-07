@@ -302,23 +302,23 @@ namespace gameroombookingsys.Service
             }
         }
 
-        public async Task<RoomBookingDto> GetRoomBookingByPlayerId(int playerId)
+        public async Task<List<RoomBookingDto>> GetRoomBookingsByPlayerId(int playerId)
         {
             try
             {
                 // Retrieve the booking by player ID.
-                var booking = await _repository.GetRoomBookingByPlayerId(playerId);
-                if (booking == null)
-                    throw new KeyNotFoundException("Booking for the specified player not found.");
+                var bookings = await _repository.GetRoomBookingsByPlayerId(playerId);
+                 if (bookings == null || !bookings.Any())
+                    throw new KeyNotFoundException("No bookings found for the specified player.");
 
-                // Update the booking status in memory.
-                UpdateBookingStatus(booking);
+                foreach (var b in bookings)
+                        {
+                    UpdateBookingStatus(b);
+                   await _repository.UpdateRoomBooking(b);
+                        }
 
-                // Persist any changes made by UpdateBookingStatus.
-                var updatedBooking = await _repository.UpdateRoomBooking(booking);
-
-                // Map the updated entity to a DTO and return it.
-                return new RoomBookingDto(updatedBooking);
+                     // Map each updated entity to a DTO
+                      return bookings.Select(b => new RoomBookingDto(b)).ToList();
             }
             catch (Exception ex)
             {
