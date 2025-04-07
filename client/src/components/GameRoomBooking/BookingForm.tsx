@@ -11,6 +11,7 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
 import Chip from "@mui/material/Chip";
 import { api } from "../../api/api";
+import { useSnackbar } from "notistack";
 
 const initialBooking: RoomBookingDto = {
   duration: undefined,
@@ -20,6 +21,8 @@ const initialBooking: RoomBookingDto = {
 };
 
 const BookingForm = () => {
+  const { enqueueSnackbar } = useSnackbar();
+
   const [bookRoom, setBookRoom] = useState<RoomBookingDto>(initialBooking);
   const [allDevices, setAllDevices] = useState<DeviceDto[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -98,7 +101,7 @@ const BookingForm = () => {
       }));
     }
     setInputValue("");
-  }; 
+  };
 
   const checkFieldsValidation = (): boolean => {
     const isBookingDateTimeValid =
@@ -123,8 +126,15 @@ const BookingForm = () => {
     if (checkFieldsValidation()) {
       try {
         const response = await api.RoomBookingsService.bookGameRoom(bookRoom);
+        enqueueSnackbar("Room booked successfully!", {
+          variant: "success",
+        });
+        setBookRoom(initialBooking); // Reset the form after booking
         console.log("Room booked successfully:", response);
       } catch (error) {
+        enqueueSnackbar("Error booking room", {
+          variant: "error",
+        });
         console.error("Error booking room:", error);
       }
     }

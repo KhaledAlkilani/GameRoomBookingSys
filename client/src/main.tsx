@@ -6,6 +6,7 @@ import "./App.css";
 import { appTheme } from "./Themes/themes.ts";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
+import { SnackbarProvider } from "notistack";
 
 function initApiHeadersFromStorage() {
   const token = localStorage.getItem("jwtToken");
@@ -20,10 +21,12 @@ function initApiHeadersFromStorage() {
 initApiHeadersFromStorage();
 
 createRoot(document.getElementById("root")!).render(
-  <ThemeProvider theme={appTheme}>
-    <CssBaseline />
-    <StrictMode>
-      <App />
-    </StrictMode>
-  </ThemeProvider>
+  <SnackbarProvider>
+    <ThemeProvider theme={appTheme}>
+      <CssBaseline />
+      <StrictMode>
+        <App />
+      </StrictMode>
+    </ThemeProvider>
+  </SnackbarProvider>
 );

@@ -1,24 +1,24 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { RoomBookingDto } from "../../api";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { api } from "../../api/api";
 
 const Bookings = () => {
   const [bookings, setBookings] = useState<RoomBookingDto[]>([]);
 
+  useEffect(() => {
+    api.RoomBookingsService.getUpcomingBookings()
+      .then((fetchedBookings) => {
+        setBookings(fetchedBookings);
+      })
+      .catch((err) => {
+        console.error("Error fetching bookings:", err);
+      });
+  }, []);
+
   return (
     <Box sx={styles.constainer}>
       <Typography sx={styles.title}>Bookings</Typography>
-      <Box sx={styles.bookingLists}>
-        <Box sx={{ backgroundColor: "yellow" }}>
-          <Typography>Upcoming bookings</Typography>
-        </Box>
-        <Box sx={{ backgroundColor: "lightblue" }}>
-          <Typography>Ongoing bookings</Typography>
-        </Box>
-        <Box sx={{ backgroundColor: "orange" }}>
-          <Typography>Past bookings</Typography>
-        </Box>
-      </Box>
     </Box>
   );
 };
