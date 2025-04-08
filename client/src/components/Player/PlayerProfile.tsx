@@ -4,9 +4,10 @@ import UnknownProfilePic from "../../assets/UnknownProfilePic.svg";
 import { api, PlayerDto } from "../../api/api";
 import { useEffect, useState } from "react";
 import { usePrompt } from "../../hooks/usePrompt";
+import { enqueueSnackbar } from "notistack";
 
 const PlayerProfile = () => {
-  const { playerInfo, loading, error, setPlayerInfo } = usePlayerInfo();
+  const { playerInfo, loading, setPlayerInfo } = usePlayerInfo();
 
   const [originalPlayerInfo, setOriginalPlayerInfo] =
     useState<PlayerDto | null>(null);
@@ -36,8 +37,15 @@ const PlayerProfile = () => {
       api.PlayersService.updatePlayerInfoById(playerInfo.id!, playerInfo)
         .then((updatedPlayer) => {
           setPlayerInfo(updatedPlayer);
+          setOriginalPlayerInfo(updatedPlayer);
+          enqueueSnackbar("Player info updated successfully", {
+            variant: "success",
+          });
         })
         .catch((err) => {
+          enqueueSnackbar("Error updating player info", {
+            variant: "error",
+          });
           console.error(
             "Error updating player info. Please try again later.",
             err
@@ -61,7 +69,6 @@ const PlayerProfile = () => {
       <Box sx={styles.container}>
         <Box>
           <Typography sx={styles.title}>Profile</Typography>
-          {error && <Typography sx={styles.error}>Error: {error}</Typography>}
           <Box sx={styles.form}>
             <TextField
               id="outlined-helperText"
@@ -72,7 +79,7 @@ const PlayerProfile = () => {
             />
             <TextField
               id="outlined-helperText"
-              label="Nickname"
+              label="Username"
               value={loading ? "Loading..." : playerInfo?.username || ""}
               variant="standard"
               onChange={handleUserNameChange}
@@ -172,9 +179,5 @@ const styles = {
     bottom: 40,
     right: 120,
     float: "right",
-  },
-  error: {
-    color: "red",
-    marginBottom: 2,
   },
 };

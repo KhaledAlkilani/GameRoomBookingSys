@@ -11,6 +11,7 @@ namespace gameroombookingsys.DTOs
 
          public RoomBookingDto(RoomBooking roomBooking)
         {
+            Id = roomBooking.Id;
             BookingDateTime = roomBooking.BookingDateTime;
             Duration = roomBooking.Duration;
             Devices = roomBooking.Devices

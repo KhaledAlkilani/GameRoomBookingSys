@@ -15,8 +15,8 @@ enum ModalMode {
   UPDATE = "UPDATE",
 }
 
-const Bookings = () => {
-  const [bookings, setBookings] = useState<RoomBookingDto[]>([]);
+const Calendar = () => {
+  const [calendar, setCalendar] = useState<RoomBookingDto[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<ModalMode>(ModalMode.CREATE);
   const [selectedBooking, setSelectedBooking] = useState<RoomBookingDto | null>(
@@ -34,7 +34,7 @@ const Bookings = () => {
     try {
       const fetchedBookings =
         await api.RoomBookingsService.getRoomBookingsByPlayerId(playerId);
-      setBookings(Array.isArray(fetchedBookings) ? fetchedBookings : []);
+      setCalendar(Array.isArray(fetchedBookings) ? fetchedBookings : []);
     } catch (err) {
       console.error("Error fetching bookings:", err);
     }
@@ -54,7 +54,7 @@ const Bookings = () => {
   };
 
   // Map bookings to FullCalendar event objects.
-  const events = bookings.map((booking, index) => {
+  const events = calendar.map((booking, index) => {
     const start = booking.bookingDateTime
       ? new Date(booking.bookingDateTime)
       : new Date();
@@ -143,7 +143,7 @@ const Bookings = () => {
   );
 };
 
-export default Bookings;
+export default Calendar;
 
 const styles = {
   container: {
