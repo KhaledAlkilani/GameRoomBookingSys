@@ -1,9 +1,10 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Typography, IconButton } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
 import { navButtons } from "./Data";
 import { useState } from "react";
 import AppTitle from "../../assets/APP-TITLE.svg";
 import { usePlayerInfo } from "../../hooks/usePlayerInfo";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 const Navigation = () => {
   const { playerInfo, error } = usePlayerInfo();
@@ -34,12 +35,12 @@ const Navigation = () => {
         ))}
       </Box>
       <Box sx={styles.userNameAndLogoutButton}>
-        <Typography sx={styles.username}>
-          Username: {playerInfo?.username}
-        </Typography>
+        <Typography sx={styles.username}>{playerInfo?.username}</Typography>
 
         <Link to="/">
-          <Button sx={styles.logoutButton}>Logout</Button>
+          <IconButton sx={styles.logoutButton}>
+            <LogoutIcon />
+          </IconButton>
         </Link>
       </Box>
     </Box>
@@ -75,8 +76,8 @@ const styles = {
   },
   userNameAndLogoutButton: {
     position: "absolute",
-    bottom: -10,
-    left: -5,
+    bottom: 0,
+    left: 0,
     padding: 2,
     display: "flex",
     justifyContent: "space-between",
@@ -85,13 +86,10 @@ const styles = {
   },
   username: {
     fontStyle: "italic",
-    fontSize: 14,
+    fontSize: 16,
     letterSpacing: 0.5,
-    fontWeight: 550,
   },
   logoutButton: {
-    textDecoration: "underline",
-    fontSize: 16,
     color: "black",
   },
 };
