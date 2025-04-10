@@ -11,6 +11,7 @@ namespace gameroombookingsys.IRepository
         Task<RoomBooking> UpdateRoomBooking(RoomBooking booking);
         Task<List<RoomBooking>> GetRoomBookingsByPlayerId(int playerId);
         Task<List<RoomBooking>> GetAllBookings();
+        Task DeleteRoomBooking(RoomBooking booking);
 
     }
 }

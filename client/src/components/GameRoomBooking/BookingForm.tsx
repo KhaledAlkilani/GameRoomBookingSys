@@ -13,7 +13,7 @@ import { DateTimePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import Autocomplete from "@mui/material/Autocomplete";
 import dayjs, { Dayjs } from "dayjs";
-import { RoomBookingDto, DeviceDto } from "../../api";
+import { RoomBookingDto, DeviceDto, BookingStatus } from "../../api";
 
 export enum ModalMode {
   CREATE = "CREATE",
@@ -37,6 +37,11 @@ export interface BookingFormProps {
   onFellowsChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onSubmit: () => void;
   onCancel: () => void;
+  checkFieldsValidation: () => boolean;
+  onCancelBooking: () => Promise<void>;
+  onDeleteBooking: () => Promise<void>;
+  onFieldChange: () => boolean;
+  onUpdateBooking: () => Promise<void>;
 }
 
 const BookingForm = (props: BookingFormProps) => {
@@ -54,13 +59,23 @@ const BookingForm = (props: BookingFormProps) => {
     onFellowsChange,
     onSubmit,
     onCancel,
+    checkFieldsValidation,
+    onCancelBooking,
+    onDeleteBooking,
+    onFieldChange,
+    onUpdateBooking,
   } = props;
 
   return (
     <Box sx={styles.form}>
       <Typography sx={styles.bookgGameRoomTitle}>
-        {mode === ModalMode.CREATE ? "Book Game Room" : "Update Booking"}
+        {mode === ModalMode.CREATE
+          ? "Book Game Room"
+          : booking?.status === BookingStatus.CANCELLED
+          ? "Cancelled Booking"
+          : "Update Booking"}
       </Typography>
+
       <Box sx={{ width: "100%" }}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <DateTimePicker
@@ -151,9 +166,46 @@ const BookingForm = (props: BookingFormProps) => {
         </FormGroup>
       </Box>
       <Box sx={styles.formButtons}>
-        <Button variant="contained" onClick={onSubmit}>
-          Save
-        </Button>
+        {mode === ModalMode.UPDATE ? (
+          booking.status === BookingStatus.CANCELLED ? (
+            <>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={onDeleteBooking}
+              >
+                Delete Booking
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={onCancelBooking}
+              >
+                Cancel Booking
+              </Button>
+              <Button
+                variant="contained"
+                onClick={onUpdateBooking}
+                disabled={mode === ModalMode.UPDATE && !onFieldChange()}
+              >
+                Save
+              </Button>
+            </>
+          )
+        ) : (
+          <>
+            <Button
+              variant="contained"
+              onClick={onSubmit}
+              disabled={!checkFieldsValidation()}
+            >
+              Save
+            </Button>
+          </>
+        )}
         <Button
           variant="outlined"
           sx={{ borderColor: "red", color: "red" }}

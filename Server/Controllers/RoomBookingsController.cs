@@ -1,5 +1,6 @@
 ﻿using gameroombookingsys.DTOs;
 using gameroombookingsys.Interfaces;
+using gameroombookingsys.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -11,6 +12,7 @@ namespace gameroombookingsys.Controllers
     public class RoomBookingsController : ControllerBase
     {
         private readonly IRoomBookingsService _roomBookingService;
+        private readonly ILogger<RoomBookingsRepository> _logger;
 
         public RoomBookingsController(IRoomBookingsService roomBookingService)
         {
@@ -180,6 +182,26 @@ namespace gameroombookingsys.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
             }
         }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(List<RoomBookingDto>), StatusCodes.Status200OK)]
+        [SwaggerOperation(OperationId = "DeleteBooking")]
+        public async Task<ActionResult> DeleteBooking(int id)
+        {
+            try
+            {
+                var success = await _roomBookingService.DeleteBooking(id);
+                if (!success) return NotFound(new { Message = "Booking not found." });
+                return Ok(new { Message = "Booking deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error deleting booking with ID {id}.");
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new { Message = ex.Message });
+            }
+        }
+
 
     }
 }

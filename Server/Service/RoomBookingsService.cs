@@ -48,6 +48,12 @@ namespace gameroombookingsys.Service
                 if (dto.BookingDateTime <= DateTime.Now)
                     throw new ArgumentException("Booking date/time must be in the future.");
 
+                var hour = dto.BookingDateTime.Hour;
+                if (hour < 8 || hour >= 20)
+                {
+                    throw new ArgumentException("Bookings can only be made between 08:00 and 20:00.");
+                }
+
                 // Validate duration: must be > 0 and <= 2 hours.
                 if (dto.Duration <= 0)
                     throw new ArgumentException("Duration must be greater than zero.");
@@ -197,6 +203,24 @@ namespace gameroombookingsys.Service
                 {
                     booking.Status = BookingStatus.Upcoming;
                 }
+            }
+        }
+
+        public async Task<bool> DeleteBooking(int id)
+        {
+            try
+            {
+                var booking = await _repository.GetRoomBookingById(id);
+                if (booking == null)
+                    throw new KeyNotFoundException($"Booking with ID {id} was not found.");
+
+                await _repository.DeleteRoomBooking(booking);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error deleting booking with ID {id}.");
+                throw new Exception($"An error occurred while deleting booking with ID {id}: {ex.Message}", ex);
             }
         }
 

@@ -48,6 +48,22 @@ namespace gameroombookingsys.Repository
             }
         }
 
+        public async Task DeleteRoomBooking(RoomBooking booking)
+        {
+            try
+            {
+                _context.RoomBookings.Remove(booking);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting room booking.");
+                throw;
+            }
+        }
+
+
+
         public async Task<RoomBooking> GetRoomBookingById(int id)
         {
             var booking = await _context.RoomBookings.FindAsync(id);
