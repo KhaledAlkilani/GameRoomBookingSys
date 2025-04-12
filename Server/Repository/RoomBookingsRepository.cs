@@ -66,11 +66,15 @@ namespace gameroombookingsys.Repository
 
         public async Task<RoomBooking> GetRoomBookingById(int id)
         {
-            var booking = await _context.RoomBookings.FindAsync(id);
+            var booking = await _context.RoomBookings
+                .Include(rb => rb.Devices) 
+                .FirstOrDefaultAsync(rb => rb.Id == id);
             if (booking == null)
                 throw new KeyNotFoundException($"Room booking with id {id} not found.");
             return booking;
         }
+
+
 
         public async Task<RoomBooking> UpdateRoomBooking(RoomBooking booking)
         {
@@ -92,8 +96,9 @@ namespace gameroombookingsys.Repository
             try
             {
                 var bookingsByPlayerId = await _context.RoomBookings
-           .Where(b => b.PlayerId == playerId)
-            .ToListAsync();
+                    .Include(rb => rb.Devices) 
+                    .Where(b => b.PlayerId == playerId)
+                    .ToListAsync();
 
                 return bookingsByPlayerId;
             }
@@ -103,6 +108,7 @@ namespace gameroombookingsys.Repository
                 throw;
             }
         }
+
 
         // Returns all RoomBooking entities from the database.
         public async Task<List<RoomBooking>> GetAllBookings()

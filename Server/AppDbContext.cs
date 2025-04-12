@@ -51,10 +51,7 @@ namespace gameroombookingsys
                         .WithMany()
                         .HasForeignKey("RoomBookingId")
                         .HasConstraintName("FK_DeviceRoomBooking_RoomBookings_RoomBookingId")
-                        .OnDelete(DeleteBehavior.ClientCascade)
-
-
-
+                        .OnDelete(DeleteBehavior.Cascade) 
                 );
         }
     }

@@ -15,5 +15,7 @@ export type RoomBookingDto = {
     fellows?: number;
     status?: BookingStatus;
     playerId?: number;
+    passCode?: string | null;
+    isPassCodeValid?: boolean;
 };
 

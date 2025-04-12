@@ -8,7 +8,7 @@ namespace gameroombookingsys.DTOs
         public DeviceDto() { } // parameterless constructor for deserialization
 
         // Mapping constructor from Device entity
-        public DeviceDto(Gameroombookingsys.Models.Device device)
+        public DeviceDto(Device device)
         {
             Id = device.Id;
             Name = device.Name;

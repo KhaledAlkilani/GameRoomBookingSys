@@ -14,20 +14,13 @@ namespace gameroombookingsys.DTOs
             Id = roomBooking.Id;
             BookingDateTime = roomBooking.BookingDateTime;
             Duration = roomBooking.Duration;
-            Devices = roomBooking.Devices
-                .Select(d => new DeviceDto
-                {
-                    Name = d.Name,
-                    Description = d.Description,
-                    Quantity = d.Quantity,
-                    Status = d.Status,
-                    PlayerId = d.PlayerId
-                })
-                .ToList();
+            Devices = roomBooking.Devices?.Select(d => new DeviceDto(d)).ToList();
             isPlayingAlone = roomBooking.isPlayingAlone;
             Fellows = roomBooking.Fellows;
             Status = roomBooking.Status;
             PlayerId = roomBooking.PlayerId;
+            PassCode = roomBooking.PassCode;
+            IsPassCodeValid = roomBooking.IsPassCodeValid;
         }
 
         public DateTime BookingDateTime { get; set; }
@@ -37,5 +30,7 @@ namespace gameroombookingsys.DTOs
         public int Fellows { get; set; }
         public BookingStatus Status { get; set; } = BookingStatus.Upcoming;
         public int PlayerId { get; set; }
+        public string? PassCode { get; set; }
+        public bool IsPassCodeValid { get; set; }
     }
 }

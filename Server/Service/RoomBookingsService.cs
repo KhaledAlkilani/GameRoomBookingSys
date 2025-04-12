@@ -12,18 +12,22 @@ namespace gameroombookingsys.Service
     public class RoomBookingsService : IRoomBookingsService
     {
         private readonly IRoomBookingsRepository _repository;
+        private readonly IDevicesRepository _deviceRepository;
         private readonly IPlayersRepository _playersRepository;
         private readonly ILogger<RoomBookingsService> _logger;
         private readonly KeycloakHelper _keycloakHelper;
         public RoomBookingsService(IRoomBookingsRepository repository,
         IPlayersRepository playersRepository,
         ILogger<RoomBookingsService> logger,
-        KeycloakHelper keycloakHelper)
+        KeycloakHelper keycloakHelper,
+        IDevicesRepository deviceRepository)
         {
             _repository = repository;
             _playersRepository = playersRepository;
             _logger = logger;
             _keycloakHelper = keycloakHelper;
+            _deviceRepository = deviceRepository;
+
         }
         public async Task<RoomBookingDto> BookGameRoom(RoomBookingDto dto)
         {
@@ -83,7 +87,8 @@ namespace gameroombookingsys.Service
                     isPlayingAlone = dto.isPlayingAlone,
                     Fellows = dto.Fellows,
                     Status = dto.Status,
-                    PlayerId = dto.PlayerId
+                    PlayerId = dto.PlayerId,
+                    PassCode = GeneratePassCode(),
                 };
 
                 // Convert each DeviceDto -> Device and add to booking.Devices
@@ -108,6 +113,7 @@ namespace gameroombookingsys.Service
 
                 // Update the DTO's ID to reflect the newly created booking
                 dto.Id = savedBooking.Id;
+                dto.PassCode = savedBooking.PassCode;
                 return dto;
             }
             catch (Exception ex)
@@ -158,16 +164,16 @@ namespace gameroombookingsys.Service
                     {
                         foreach (var deviceDto in dto.Devices)
                         {
-                            var device = new Device
+                            var device = await _deviceRepository.GetDeviceById(deviceDto.Id);
+                            if (device != null)
                             {
-                                Id = deviceDto.Id,  
-                                Name = deviceDto.Name,
-                                Description = deviceDto.Description,
-                                Quantity = deviceDto.Quantity,
-                                Status = deviceDto.Status,
-                                PlayerId = deviceDto.PlayerId
-                            };
-                            booking.Devices.Add(device);
+                                booking.Devices.Add(device);
+                            }
+                            else
+                            {
+                                // Optionally handle the case where the device isn't found.
+                                throw new KeyNotFoundException($"Device with ID {deviceDto.Id} not found.");
+                            }
                         }
                     }
                 }
@@ -335,10 +341,13 @@ namespace gameroombookingsys.Service
                  if (bookings == null || !bookings.Any())
                     throw new KeyNotFoundException("No bookings found for the specified player.");
 
-                foreach (var b in bookings)
+                    foreach (var b in bookings)
                         {
-                    UpdateBookingStatus(b);
-                   await _repository.UpdateRoomBooking(b);
+                        var currentPassCode = b.PassCode;
+                        UpdateBookingStatus(b);
+                        // Reassign the PassCode to preserve it
+                        b.PassCode = currentPassCode;
+                        await _repository.UpdateRoomBooking(b); 
                         }
 
                      // Map each updated entity to a DTO
@@ -350,5 +359,12 @@ namespace gameroombookingsys.Service
                 throw;
             }
         }  
+
+        private string GeneratePassCode()
+        {
+            // Generate a random 6-digit passcode
+            Random random = new Random();
+            return random.Next(100000, 999999).ToString();
+        }
     }
 }

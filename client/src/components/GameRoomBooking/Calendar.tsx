@@ -31,7 +31,7 @@ const Calendar = ({
         height="650px"
         dateClick={onCreateNewBooking}
         eventClick={onShowExistingBooking}
-        eventDidMount={(info: { el: HTMLElement; event: any }) => {
+        eventDidMount={(info) => {
           info.el.setAttribute(
             "title",
             getStatusTooltip(info.event.extendedProps.status)

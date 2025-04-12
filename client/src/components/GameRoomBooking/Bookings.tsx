@@ -3,6 +3,8 @@ import { RoomBookingDto } from "../../api";
 import { useEffect, useState } from "react";
 import { api, BookingStatus, DeviceDto } from "../../api/api";
 import dayjs, { Dayjs } from "dayjs";
+import utc from "dayjs/plugin/utc"; // Importing the utc plugin for dayjs
+dayjs.extend(utc); // Extending dayjs with the utc plugin
 import { useSnackbar } from "notistack";
 import { usePlayerInfo } from "../../hooks/usePlayerInfo";
 import BookingForm, { ModalMode } from "./BookingForm";
@@ -22,6 +24,7 @@ const Bookings = () => {
   const { playerInfo } = usePlayerInfo();
 
   const [calendar, setCalendar] = useState<RoomBookingDto[]>([]);
+  const [calendarKey, setCalendarKey] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<ModalMode>(ModalMode.CREATE);
   const [selectedBooking, setSelectedBooking] = useState<RoomBookingDto | null>(
@@ -66,7 +69,7 @@ const Bookings = () => {
       ? new Date(booking.bookingDateTime)
       : new Date();
     const end = new Date(
-      start.getTime() + (booking.duration ?? 0) * 60 * 60 * 1000
+      start.getTime() + (booking.duration || 0) * 60 * 60 * 1000
     );
     const color = getStatusColor(booking.status ?? "");
     return {
@@ -76,8 +79,8 @@ const Bookings = () => {
       end,
       backgroundColor: color,
       borderColor: color,
-      extendedProps: { booking },
       status: booking.status,
+      extendedProps: { booking },
     };
   });
 
@@ -104,44 +107,25 @@ const Bookings = () => {
     }
   };
 
-  // const handleBookingDateTimeChange = (newValue: Dayjs | null) => {
-  //   setBookRoom((prev) => ({
-  //     ...prev,
-  //     bookingDateTime: newValue ? newValue.format("YYYY-MM-DDTHH:mm") : "",
-  //   }));
-  // };
-
   const handleBookingDateTimeChange = (newValue: Dayjs | null) => {
     if (modalMode === ModalMode.CREATE) {
       setBookRoom((prev) => ({
         ...prev,
-        bookingDateTime: newValue ? newValue.format("YYYY-MM-DDTHH:mm") : "",
+        bookingDateTime: newValue
+          ? dayjs.utc(newValue).format("YYYY-MM-DDTHH:mm")
+          : "",
       }));
     } else if (modalMode === ModalMode.UPDATE && selectedBooking) {
       setSelectedBooking({
         ...selectedBooking,
-        bookingDateTime: newValue ? newValue.format("YYYY-MM-DDTHH:mm") : "",
+        bookingDateTime: newValue
+          ? dayjs.utc(newValue).format("YYYY-MM-DDTHH:mm")
+          : "",
       });
     }
   };
 
-  // const handleDuractionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const value = e.target.value;
-  //   const numHours = parseInt(value, 10);
-  //   if (modalMode === ModalMode.CREATE) {
-  //     setBookRoom({
-  //       ...bookRoom,
-  //       duration: !isNaN(numHours) ? numHours : undefined,
-  //     });
-  //   } else if (modalMode === ModalMode.UPDATE && selectedBooking) {
-  //     setSelectedBooking({
-  //       ...selectedBooking,
-  //       duration: !isNaN(numHours) ? numHours : undefined,
-  //     });
-  //   }
-  // };
-
-  const handleDuractionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDurationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     const numHours = parseInt(value, 10);
     if (modalMode === ModalMode.CREATE) {
@@ -166,31 +150,21 @@ const Bookings = () => {
 
   const handleDeviceSelect = (
     _: React.SyntheticEvent,
-    newValue: DeviceDto | null
+    newValue: DeviceDto[]
   ) => {
-    if (newValue) {
-      if (modalMode === ModalMode.CREATE) {
-        setBookRoom((prev) => ({
-          ...prev,
-          devices: [...(prev.devices || []), newValue],
-        }));
-      } else if (modalMode === ModalMode.UPDATE && selectedBooking) {
-        setSelectedBooking({
-          ...selectedBooking,
-          devices: [...(selectedBooking.devices || []), newValue],
-        });
-      }
+    if (modalMode === ModalMode.CREATE) {
+      setBookRoom((prev) => ({
+        ...prev,
+        devices: newValue,
+      }));
+    } else if (modalMode === ModalMode.UPDATE && selectedBooking) {
+      setSelectedBooking({
+        ...selectedBooking,
+        devices: newValue,
+      });
     }
     setInputValue("");
   };
-
-  // const handlePlayingAloneChange = () => {
-  //   setBookRoom((prev) => ({
-  //     ...prev,
-  //     isPlayingAlone: true,
-  //     fellows: 0,
-  //   }));
-  // };
 
   const handlePlayingAloneChange = () => {
     if (modalMode === ModalMode.CREATE) {
@@ -207,14 +181,6 @@ const Bookings = () => {
       });
     }
   };
-
-  // const handleWithFellowsChange = () => {
-  //   setBookRoom((prev) => ({
-  //     ...prev,
-  //     isPlayingAlone: false,
-  //     fellows: undefined,
-  //   }));
-  // };
 
   const handleWithFellowsChange = () => {
     if (modalMode === ModalMode.CREATE) {
@@ -276,11 +242,18 @@ const Bookings = () => {
     if (checkFieldsValidation()) {
       try {
         const response = await api.RoomBookingsService.bookGameRoom(bookRoom);
-        enqueueSnackbar("Room booked successfully!", {
-          variant: "success",
-        });
+        enqueueSnackbar(
+          `Room booked successfully on ${dayjs(bookRoom.bookingDateTime).format(
+            "MMMM D, YYYY h:mm A"
+          )}!`,
+          { variant: "success" }
+        );
+
+        const freshBooking = await api.RoomBookingsService.getRoomBookingById(
+          response.id!
+        );
         // Add the new booking to the calendar state
-        setCalendar((prev) => [...prev, response]);
+        setCalendar((prev) => [...prev, freshBooking]);
 
         // Reset fields
         setBookRoom(initialBooking);
@@ -303,16 +276,40 @@ const Bookings = () => {
   const updateBooking = async () => {
     if (!selectedBooking || !selectedBooking.id) return;
     try {
+      const payload = {
+        ...selectedBooking,
+        devices: selectedBooking.devices || [],
+      };
       const updated = await api.RoomBookingsService.updateRoomBooking(
         selectedBooking.id,
-        selectedBooking
+        payload
       );
-      setSelectedBooking(updated);
-      enqueueSnackbar("Booking updated successfully!", { variant: "success" });
+
+      // Merge the devices from payload to the response.
+      const updatedBooking = { ...updated, devices: payload.devices };
+
+      // Re-fetch the bookings.
+      const fetchedBookings =
+        await api.RoomBookingsService.getRoomBookingsByPlayerId(
+          playerInfo?.id!
+        );
+      // Merge the updated booking's devices if it exists in the fetched data.
+      const updatedBookings = (
+        Array.isArray(fetchedBookings) ? fetchedBookings : []
+      ).map((booking) =>
+        booking.id === updatedBooking.id
+          ? { ...booking, devices: updatedBooking.devices }
+          : booking
+      );
+      setCalendar(updatedBookings);
+      setSelectedBooking(updatedBooking);
+      enqueueSnackbar(
+        `Booking updated successfully on ${dayjs(
+          selectedBooking.bookingDateTime
+        ).format("MMMM D, YYYY h:mm A")}!`,
+        { variant: "success" }
+      );
       setModalOpen(false);
-      if (playerInfo && playerInfo.id) {
-        fetchPlayerBookings(playerInfo.id);
-      }
     } catch (error: any) {
       enqueueSnackbar("Error updating booking", { variant: "error" });
       console.error("Error updating booking:", error);
@@ -340,7 +337,8 @@ const Bookings = () => {
       });
       setModalOpen(false);
       if (playerInfo && playerInfo.id) {
-        fetchPlayerBookings(playerInfo.id);
+        await fetchPlayerBookings(playerInfo.id);
+        setCalendarKey((prevKey) => prevKey + 1); // Force re-render of calendar
       }
     } catch (error: any) {
       enqueueSnackbar("Error cancelling booking", { variant: "error" });
@@ -371,6 +369,7 @@ const Bookings = () => {
     <Box sx={styles.container}>
       <Typography sx={styles.title}>Calendar</Typography>
       <Calendar
+        key={calendarKey} // Force re-render of calendar when key changes
         events={events}
         onCreateNewBooking={handleCreateNewBooking}
         onShowExistingBooking={handleShowExistingBooking}
@@ -386,10 +385,14 @@ const Bookings = () => {
             }
             allDevices={allDevices}
             inputValue={inputValue}
+            selectedBooking={selectedBooking}
+            onSelectedBooking={
+              modalMode === ModalMode.CREATE ? setBookRoom : setSelectedBooking
+            }
             onInputChange={handleDeviceInputChange}
             onDeviceSelect={handleDeviceSelect}
             onBookingDateTimeChange={handleBookingDateTimeChange}
-            onDurationChange={handleDuractionChange}
+            onDurationChange={handleDurationChange}
             onPlayingAloneChange={handlePlayingAloneChange}
             onWithFellowsChange={handleWithFellowsChange}
             onFellowsChange={handleFellowsChange}

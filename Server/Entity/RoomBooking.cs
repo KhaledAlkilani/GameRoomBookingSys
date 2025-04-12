@@ -12,6 +12,8 @@ namespace Gameroombookingsys.Models
         public BookingStatus Status { get; set; } = BookingStatus.Upcoming;
         public int PlayerId { get; set; }
         public Player Player { get; set; }
+        public string PassCode { get; set; }
+        public bool IsPassCodeValid => Status != BookingStatus.Cancelled && DateTime.UtcNow < BookingDateTime.AddHours(Duration);
 
     }
 }

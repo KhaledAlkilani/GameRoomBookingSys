@@ -12,11 +12,12 @@ namespace gameroombookingsys.Controllers
     public class RoomBookingsController : ControllerBase
     {
         private readonly IRoomBookingsService _roomBookingService;
-        private readonly ILogger<RoomBookingsRepository> _logger;
+        private readonly ILogger<RoomBookingsController> _logger;
 
-        public RoomBookingsController(IRoomBookingsService roomBookingService)
+        public RoomBookingsController(IRoomBookingsService roomBookingService, ILogger<RoomBookingsController> logger)
         {
             _roomBookingService = roomBookingService;
+            _logger = logger;
         }
 
         // POST api/gameroombookings/bookroom
@@ -191,17 +192,20 @@ namespace gameroombookingsys.Controllers
             try
             {
                 var success = await _roomBookingService.DeleteBooking(id);
-                if (!success) return NotFound(new { Message = "Booking not found." });
+                if (!success)
+                {
+                    _logger?.LogWarning("Booking with ID {id} was not found for deletion.", id);
+                    return NotFound(new { Message = "Booking not found." });
+                }
+                _logger?.LogInformation("Booking with ID {id} deleted successfully.", id);
                 return Ok(new { Message = "Booking deleted successfully." });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error deleting booking with ID {id}.");
+                _logger?.LogError(ex, "Error deleting booking with ID {id}.", id);
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     new { Message = ex.Message });
             }
-        }
-
-
+        }  
     }
 }

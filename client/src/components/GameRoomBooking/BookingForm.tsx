@@ -25,11 +25,10 @@ export interface BookingFormProps {
   booking: RoomBookingDto;
   allDevices: DeviceDto[];
   inputValue: string;
+  selectedBooking: RoomBookingDto | null;
+  onSelectedBooking: (booking: RoomBookingDto) => void;
   onInputChange: (event: React.SyntheticEvent, value: string) => void;
-  onDeviceSelect: (
-    event: React.SyntheticEvent,
-    value: DeviceDto | null
-  ) => void;
+  onDeviceSelect: (_: React.SyntheticEvent, newValue: DeviceDto[]) => void;
   onBookingDateTimeChange: (newValue: Dayjs | null) => void;
   onDurationChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onPlayingAloneChange: () => void;
@@ -50,6 +49,7 @@ const BookingForm = (props: BookingFormProps) => {
     booking,
     allDevices,
     inputValue,
+    selectedBooking,
     onInputChange,
     onDeviceSelect,
     onBookingDateTimeChange,
@@ -64,17 +64,42 @@ const BookingForm = (props: BookingFormProps) => {
     onDeleteBooking,
     onFieldChange,
     onUpdateBooking,
+    onSelectedBooking,
   } = props;
+
+  const isCancelled = booking.status === BookingStatus.CANCELLED;
+  const isCompleted = booking.status === BookingStatus.COMPLETED;
+  const isDisabled = isCancelled || isCompleted;
 
   return (
     <Box sx={styles.form}>
       <Typography sx={styles.bookgGameRoomTitle}>
         {mode === ModalMode.CREATE
           ? "Book Game Room"
-          : booking?.status === BookingStatus.CANCELLED
+          : isCancelled
           ? "Cancelled Booking"
+          : isCompleted
+          ? "Completed Booking"
           : "Update Booking"}
       </Typography>
+
+      {/* New Pass Code field: display only in update mode */}
+      {mode === ModalMode.UPDATE && (
+        <Box width="100%" sx={{ mb: 2 }}>
+          <TextField
+            label="Pass Code"
+            value={booking.passCode || ""}
+            variant="standard"
+            fullWidth
+            disabled
+            helperText={
+              isCancelled || isCompleted || !booking.isPassCodeValid
+                ? "Passcode expired."
+                : ""
+            }
+          />
+        </Box>
+      )}
 
       <Box sx={{ width: "100%" }}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -85,6 +110,7 @@ const BookingForm = (props: BookingFormProps) => {
             }
             onChange={onBookingDateTimeChange}
             sx={{ width: "100%" }}
+            disabled={isDisabled}
           />
         </LocalizationProvider>
       </Box>
@@ -92,26 +118,40 @@ const BookingForm = (props: BookingFormProps) => {
         <TextField
           id="outlined-helperText"
           label="Duration *"
-          type="number"
-          value={booking.duration || ""}
+          type="text"
+          defaultValue={booking.duration || ""}
           onChange={onDurationChange}
           variant="standard"
           fullWidth
           inputProps={{ min: 0 }}
+          disabled={isDisabled}
         />
       </Box>
       <Box width="100%">
         <Autocomplete
           options={allDevices}
           getOptionLabel={(option) => option.name || ""}
-          value={null}
+          multiple
+          value={
+            mode === ModalMode.CREATE
+              ? booking.devices ?? []
+              : selectedBooking?.devices ?? []
+          }
           inputValue={inputValue}
-          onInputChange={onInputChange}
+          onInputChange={(event, newInputValue) => {
+            onInputChange(event, newInputValue);
+          }}
           onChange={onDeviceSelect}
           renderTags={() => null}
           renderInput={(params) => (
-            <TextField {...params} label="Devices" variant="standard" />
+            <TextField
+              {...params}
+              label="Devices"
+              variant="standard"
+              disabled={isDisabled}
+            />
           )}
+          disabled={isDisabled}
         />
         <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 2 }}>
           {booking.devices &&
@@ -119,9 +159,18 @@ const BookingForm = (props: BookingFormProps) => {
               <Chip
                 key={device.id}
                 label={device.name}
-                onDelete={() => {
-                  // You might pass an onDeleteDevice prop to remove a device from booking.devices.
-                }}
+                onDelete={
+                  isDisabled
+                    ? undefined
+                    : () => {
+                        onSelectedBooking({
+                          ...booking,
+                          devices: booking.devices?.filter(
+                            (d) => d.id !== device.id
+                          ),
+                        });
+                      }
+                }
               />
             ))}
         </Box>
@@ -133,6 +182,7 @@ const BookingForm = (props: BookingFormProps) => {
               <Checkbox
                 checked={booking.isPlayingAlone}
                 onChange={onPlayingAloneChange}
+                disabled={isDisabled}
               />
             }
             label="Playing alone"
@@ -146,6 +196,7 @@ const BookingForm = (props: BookingFormProps) => {
                 <Checkbox
                   checked={!booking.isPlayingAlone}
                   onChange={onWithFellowsChange}
+                  disabled={isDisabled}
                 />
               }
               label="With fellows"
@@ -160,6 +211,7 @@ const BookingForm = (props: BookingFormProps) => {
                 variant="standard"
                 sx={{ marginTop: -2 }}
                 inputProps={{ min: 1 }}
+                disabled={isDisabled}
               />
             )}
           </Box>
@@ -167,7 +219,7 @@ const BookingForm = (props: BookingFormProps) => {
       </Box>
       <Box sx={styles.formButtons}>
         {mode === ModalMode.UPDATE ? (
-          booking.status === BookingStatus.CANCELLED ? (
+          isCancelled || isCompleted ? (
             <>
               <Button
                 variant="contained"
