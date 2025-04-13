@@ -3,12 +3,14 @@ using System.Threading.Tasks;
 using gameroombookingsys.DTOs;
 using gameroombookingsys.Interfaces;
 using gameroombookingsys.IRepository;
+using Gameroombookingsys.Repository;
 
 namespace Gameroombookingsys.Services
 {
     public class PlayersService : IPlayersService
     {
         private readonly IPlayersRepository _playerRepository;
+        private readonly ILogger<PlayersService> _logger;
 
         public PlayersService(IPlayersRepository playerRepository)
         {
@@ -57,15 +59,31 @@ namespace Gameroombookingsys.Services
         public async Task<List<PlayerDto>> GetAllPlayers()
         {
             var players = await _playerRepository.GetAllPlayers();
-            return players.Select(player => new PlayerDto
+            return players.Select(p => new PlayerDto(p)).ToList();
+        }
+        public async Task<PlayerDto> UpdatePlayerInfo(PlayerDto playerDto)
+        {
+            try
+            { 
+                var player = await _playerRepository.GetPlayerByEmail(playerDto.Email);
+                if (player == null)
+                    throw new KeyNotFoundException("Player not found.");
+
+                // Update fields
+                player.Username = playerDto.Username;
+                player.PhoneNumber = playerDto.PhoneNumber;
+                player.PictureUrl = playerDto.PictureUrl;
+                player.Theme = playerDto.Theme;
+
+                var updatedPlayer = await _playerRepository.UpdatePlayer(player);
+
+                return new PlayerDto(updatedPlayer);
+            }
+            catch (Exception ex)
             {
-                Id = player.Id,
-                Username = player.Username,
-                PictureUrl = player.PictureUrl,
-                PhoneNumber = player.PhoneNumber,
-                Email = player.Email,
-                Theme = player.Theme
-            }).ToList();
+                _logger.LogError(ex, "Error updating player info in service.");
+                throw new Exception("Error updating player info in service.", ex);
+            }
         }
     }
 }

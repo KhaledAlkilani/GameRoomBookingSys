@@ -5,7 +5,7 @@
 namespace gameroombookingsys.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateTypesInRoomBookingAndDevicesEntities : Migration
+    public partial class AddedBookingCancellationStatusToPassCodeValidation : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

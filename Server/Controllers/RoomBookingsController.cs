@@ -1,5 +1,6 @@
 ﻿using gameroombookingsys.DTOs;
 using gameroombookingsys.Interfaces;
+using gameroombookingsys.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -11,10 +12,12 @@ namespace gameroombookingsys.Controllers
     public class RoomBookingsController : ControllerBase
     {
         private readonly IRoomBookingsService _roomBookingService;
+        private readonly ILogger<RoomBookingsController> _logger;
 
-        public RoomBookingsController(IRoomBookingsService roomBookingService)
+        public RoomBookingsController(IRoomBookingsService roomBookingService, ILogger<RoomBookingsController> logger)
         {
             _roomBookingService = roomBookingService;
+            _logger = logger;
         }
 
         // POST api/gameroombookings/bookroom
@@ -146,13 +149,13 @@ namespace gameroombookingsys.Controllers
 
         [HttpGet("player/{playerId}")]
         [ProducesResponseType(typeof(RoomBookingDto), StatusCodes.Status200OK)]
-        [SwaggerOperation(OperationId = "GetRoomBookingByPlayerId")]
-        public async Task<ActionResult<RoomBookingDto>> GetRoomBookingByPlayerId(int playerId)
+        [SwaggerOperation(OperationId = "GetRoomBookingsByPlayerId")]
+        public async Task<ActionResult<List<RoomBookingDto>>> GetRoomBookingsByPlayerId(int playerId)
         {
             try
             {
-                var booking = await _roomBookingService.GetRoomBookingByPlayerId(playerId);
-                return Ok(booking);
+                var bookings = await _roomBookingService.GetRoomBookingsByPlayerId(playerId);
+                 return Ok(bookings);
             }
             catch (KeyNotFoundException ex)
             {
@@ -163,5 +166,46 @@ namespace gameroombookingsys.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
             }
         }
+
+        // Add this method in your RoomBookingsController
+        [HttpGet("allbookings")]
+        [ProducesResponseType(typeof(List<RoomBookingDto>), StatusCodes.Status200OK)]
+        [SwaggerOperation(OperationId = "GetAllBookings")]
+        public async Task<ActionResult<List<RoomBookingDto>>> GetAllBookings()
+        {
+            try
+            {
+                var bookings = await _roomBookingService.GetAllBookings();
+                return Ok(bookings);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
+            }
+        }
+
+        [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(List<RoomBookingDto>), StatusCodes.Status200OK)]
+        [SwaggerOperation(OperationId = "DeleteBooking")]
+        public async Task<ActionResult> DeleteBooking(int id)
+        {
+            try
+            {
+                var success = await _roomBookingService.DeleteBooking(id);
+                if (!success)
+                {
+                    _logger?.LogWarning("Booking with ID {id} was not found for deletion.", id);
+                    return NotFound(new { Message = "Booking not found." });
+                }
+                _logger?.LogInformation("Booking with ID {id} deleted successfully.", id);
+                return Ok(new { Message = "Booking deleted successfully." });
+            }
+            catch (Exception ex)
+            {
+                _logger?.LogError(ex, "Error deleting booking with ID {id}.", id);
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    new { Message = ex.Message });
+            }
+        }  
     }
 }

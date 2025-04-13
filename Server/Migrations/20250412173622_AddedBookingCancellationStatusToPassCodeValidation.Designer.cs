@@ -12,8 +12,8 @@ using gameroombookingsys;
 namespace gameroombookingsys.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250315213725_UpdateTypesInRoomBookingAndDevicesEntities")]
-    partial class UpdateTypesInRoomBookingAndDevicesEntities
+    [Migration("20250412173622_AddedBookingCancellationStatusToPassCodeValidation")]
+    partial class AddedBookingCancellationStatusToPassCodeValidation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -105,6 +105,10 @@ namespace gameroombookingsys.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Players");
@@ -124,10 +128,17 @@ namespace gameroombookingsys.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<TimeSpan>("Duration")
-                        .HasColumnType("time");
+                    b.Property<double>("Duration")
+                        .HasColumnType("float");
 
                     b.Property<int>("Fellows")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PassCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PlayerId")
                         .HasColumnType("int");
 
                     b.Property<int>("Status")
@@ -140,6 +151,8 @@ namespace gameroombookingsys.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PlayerId");
 
                     b.ToTable("RoomBookings");
                 });
@@ -156,9 +169,26 @@ namespace gameroombookingsys.Migrations
                     b.HasOne("Gameroombookingsys.Models.RoomBooking", null)
                         .WithMany()
                         .HasForeignKey("RoomBookingId")
-                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_DeviceRoomBooking_RoomBookings_RoomBookingId");
+                });
+
+            modelBuilder.Entity("Gameroombookingsys.Models.RoomBooking", b =>
+                {
+                    b.HasOne("Gameroombookingsys.Models.Player", "Player")
+                        .WithMany("RoomBookings")
+                        .HasForeignKey("PlayerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RoomBookings_Players_PlayerId");
+
+                    b.Navigation("Player");
+                });
+
+            modelBuilder.Entity("Gameroombookingsys.Models.Player", b =>
+                {
+                    b.Navigation("RoomBookings");
                 });
 #pragma warning restore 612, 618
         }

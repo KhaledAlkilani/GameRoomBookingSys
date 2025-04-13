@@ -13,12 +13,15 @@ import { api } from "../../api/api";
 import { OpenAPI } from "../../api/core/OpenAPI";
 import { PlayerDto } from "../../api/api";
 import gameRoomImage from "../../assets/gameroomimage.svg";
+import RegistrationModal from "./RegistrationModal";
+import { enqueueSnackbar } from "notistack";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
 
   const [playerDto, setPlayerDto] = useState<PlayerDto>({});
   const [error, setError] = useState<string | null>(null);
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
   //Handle email changes
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,7 +36,7 @@ const Login: React.FC = () => {
   const handleLogin = async () => {
     // Validate email domain
     if (!playerDto.email?.endsWith("@edu.xamk.fi")) {
-      setError("Only school emails ending with '@edu.xamk.fi' are allowed.");
+      setError("Only university emails are allowed.");
       return;
     }
 
@@ -53,6 +56,20 @@ const Login: React.FC = () => {
       navigate("/profile");
     } catch (err: any) {
       setError(err.message || "Error generating token");
+    }
+  };
+
+  const handleRegisterSend = async (email: string) => {
+    try {
+      await api.RegistrationService.sendRegistrationLink({ email });
+      enqueueSnackbar(`Registration link sent to ${email}`, {
+        variant: "success",
+      });
+    } catch (e: any) {
+      console.error("Error sending registration link:", e);
+      enqueueSnackbar(e?.message || "Error sending registration link", {
+        variant: "error",
+      });
     }
   };
 
@@ -99,15 +116,19 @@ const Login: React.FC = () => {
           </Button>
 
           <Box sx={styles.linksRow}>
-            <Link href="/register" variant="body2">
+            <Button onClick={() => setIsRegisterOpen(true)}>
               register now
-            </Link>
-            <Link href="/forgot-password" variant="body2">
-              forgot password?
-            </Link>
+            </Button>
+            <Button>forgot password?</Button>
           </Box>
         </Paper>
       </Container>
+      {/* Registration Modal */}
+      <RegistrationModal
+        open={isRegisterOpen}
+        onClose={() => setIsRegisterOpen(false)}
+        onSend={handleRegisterSend}
+      />
     </Box>
   );
 };
@@ -127,12 +148,12 @@ const styles = {
     justifyContent: "center",
   },
   paper: {
-    p: 4,
+    p: 3,
     opacity: 0.94,
   },
   linksRow: {
-    mt: 2,
     display: "flex",
     justifyContent: "space-between",
+    mt: 1
   },
 };

@@ -10,7 +10,7 @@ namespace gameroombookingsys.Controllers
     public class TokenController : ControllerBase
     {
         [HttpGet("generate")]
-        public IActionResult GenerateToken([FromQuery] string email)
+        public ActionResult GenerateToken([FromQuery] string email)
         {
             // Validate email parameter.
             if (string.IsNullOrEmpty(email) || !email.EndsWith("@edu.xamk.fi", StringComparison.OrdinalIgnoreCase))

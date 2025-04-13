@@ -12,7 +12,7 @@ using gameroombookingsys;
 namespace gameroombookingsys.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250310174530_InitialCreate")]
+    [Migration("20250406141634_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -25,6 +25,21 @@ namespace gameroombookingsys.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("DeviceRoomBooking", b =>
+                {
+                    b.Property<int>("DeviceId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoomBookingId")
+                        .HasColumnType("int");
+
+                    b.HasKey("DeviceId", "RoomBookingId");
+
+                    b.HasIndex("RoomBookingId");
+
+                    b.ToTable("DeviceRoomBooking");
+                });
+
             modelBuilder.Entity("Gameroombookingsys.Models.Device", b =>
                 {
                     b.Property<int>("Id")
@@ -33,29 +48,29 @@ namespace gameroombookingsys.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("PlayerId")
+                    b.Property<int?>("PlayerId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Quantity")
+                    b.Property<int?>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<int?>("RoomBookingId")
+                    b.Property<int?>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("RoomBookingId");
 
                     b.ToTable("Devices");
                 });
@@ -67,6 +82,9 @@ namespace gameroombookingsys.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -81,6 +99,13 @@ namespace gameroombookingsys.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Theme")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -100,15 +125,20 @@ namespace gameroombookingsys.Migrations
                     b.Property<DateTime>("BookingDateTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<TimeSpan>("Duration")
-                        .HasColumnType("time");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
-                    b.PrimitiveCollection<string>("Fellows")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<double>("Duration")
+                        .HasColumnType("float");
+
+                    b.Property<int>("Fellows")
+                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("isPlayingAlone")
                         .HasColumnType("bit");
@@ -118,16 +148,21 @@ namespace gameroombookingsys.Migrations
                     b.ToTable("RoomBookings");
                 });
 
-            modelBuilder.Entity("Gameroombookingsys.Models.Device", b =>
+            modelBuilder.Entity("DeviceRoomBooking", b =>
                 {
-                    b.HasOne("Gameroombookingsys.Models.RoomBooking", null)
-                        .WithMany("Devices")
-                        .HasForeignKey("RoomBookingId");
-                });
+                    b.HasOne("Gameroombookingsys.Models.Device", null)
+                        .WithMany()
+                        .HasForeignKey("DeviceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_DeviceRoomBooking_Devices_DeviceId");
 
-            modelBuilder.Entity("Gameroombookingsys.Models.RoomBooking", b =>
-                {
-                    b.Navigation("Devices");
+                    b.HasOne("Gameroombookingsys.Models.RoomBooking", null)
+                        .WithMany()
+                        .HasForeignKey("RoomBookingId")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_DeviceRoomBooking_RoomBookings_RoomBookingId");
                 });
 #pragma warning restore 612, 618
         }

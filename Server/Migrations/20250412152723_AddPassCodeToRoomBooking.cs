@@ -5,14 +5,14 @@
 namespace gameroombookingsys.Migrations
 {
     /// <inheritdoc />
-    public partial class AddedUserNameFieldToPlayer : Migration
+    public partial class AddPassCodeToRoomBooking : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "Username",
-                table: "Players",
+                name: "PassCode",
+                table: "RoomBookings",
                 type: "nvarchar(max)",
                 nullable: false,
                 defaultValue: "");
@@ -22,8 +22,8 @@ namespace gameroombookingsys.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "Username",
-                table: "Players");
+                name: "PassCode",
+                table: "RoomBookings");
         }
     }
 }

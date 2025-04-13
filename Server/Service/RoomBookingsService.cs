@@ -1,30 +1,76 @@
 ﻿
 using gameroombookingsys.DTOs;
 using gameroombookingsys.Enums;
+using gameroombookingsys.Helpers;
 using gameroombookingsys.Interfaces;
 using gameroombookingsys.IRepository;
+using gameroombookingsys.IService;
 using Gameroombookingsys.Models;
+using Gameroombookingsys.Repository;
 
 namespace gameroombookingsys.Service
 {
     public class RoomBookingsService : IRoomBookingsService
     {
         private readonly IRoomBookingsRepository _repository;
+        private readonly IDevicesRepository _deviceRepository;
+        private readonly IPlayersRepository _playersRepository;
         private readonly ILogger<RoomBookingsService> _logger;
-        public RoomBookingsService(IRoomBookingsRepository repository, ILogger<RoomBookingsService> logger)
+        private readonly KeycloakHelper _keycloakHelper;
+        private readonly IEmailService _emailService;
+        public RoomBookingsService(IRoomBookingsRepository repository,
+        IPlayersRepository playersRepository,
+        ILogger<RoomBookingsService> logger,
+        KeycloakHelper keycloakHelper,
+        IDevicesRepository deviceRepository,
+        IEmailService emailService)
         {
             _repository = repository;
+            _playersRepository = playersRepository;
             _logger = logger;
+            _keycloakHelper = keycloakHelper;
+            _deviceRepository = deviceRepository;
+            _emailService = emailService; 
         }
         public async Task<RoomBookingDto> BookGameRoom(RoomBookingDto dto)
         {
             try
             {
-                // Validate input
+                // Get the authenticated user's email from the HttpContext via KeycloakHelper
+                var email = _keycloakHelper.GetUserEmail();
+                if (string.IsNullOrEmpty(email))
+                    throw new Exception("User not authenticated.");
+
+                // Look up the player by email
+                var player = await _playersRepository.GetPlayerByEmail(email);
+                if (player == null)
+                    throw new Exception("Player not found for the authenticated user.");
+
+                // Ensure player's email is a university email
+                if (!_keycloakHelper.IsSchoolEmail(email))
+                    throw new Exception("A university email is required.");
+
+                // Set the booking's playerId to the authenticated player's ID
+                dto.PlayerId = player.Id;
+
+                // Validate booking date/time
                 if (dto.BookingDateTime == default)
                     throw new ArgumentException("Booking date/time is required.");
-                if (dto.Duration <= TimeSpan.Zero)
+                if (dto.BookingDateTime <= DateTime.Now)
+                    throw new ArgumentException("Booking date/time must be in the future.");
+
+                var hour = dto.BookingDateTime.Hour;
+                if (hour < 8 || hour >= 20)
+                {
+                    throw new ArgumentException("Bookings can only be made between 08:00 and 20:00.");
+                }
+
+                // Validate duration: must be > 0 and <= 2 hours.
+                if (dto.Duration <= 0)
                     throw new ArgumentException("Duration must be greater than zero.");
+                if (dto.Duration > 2)
+                    throw new ArgumentException("Duration must be 2 hours or less.");
+
                 if (dto.isPlayingAlone && dto.Fellows > 0)
                     throw new ArgumentException("You cannot play alone and have fellows at the same time.");
                 if (!dto.isPlayingAlone && dto.Fellows == 0)
@@ -47,7 +93,9 @@ namespace gameroombookingsys.Service
                     Duration = dto.Duration,
                     isPlayingAlone = dto.isPlayingAlone,
                     Fellows = dto.Fellows,
-                    Status = dto.Status
+                    Status = dto.Status,
+                    PlayerId = dto.PlayerId,
+                    PassCode = GeneratePassCode(),
                 };
 
                 // Convert each DeviceDto -> Device and add to booking.Devices
@@ -72,6 +120,13 @@ namespace gameroombookingsys.Service
 
                 // Update the DTO's ID to reflect the newly created booking
                 dto.Id = savedBooking.Id;
+                dto.PassCode = savedBooking.PassCode;
+
+                // Send confirmation email with the passcode 
+                var subject = "Game Room Booking Confirmation";
+                var body = $"Your booking has been confirmed. Your game room pass code is: {savedBooking.PassCode}";
+                await _emailService.SendBookingConfirmationEmailAsync(player.Email, subject, body);
+
                 return dto;
             }
             catch (Exception ex)
@@ -79,8 +134,7 @@ namespace gameroombookingsys.Service
                 _logger.LogError(ex, "Error occurred in BookGameRoom in service.");
                 throw;
             }
-        }
-
+        } 
         public async Task<RoomBookingDto> UpdateRoomBooking(int id, RoomBookingDto dto)
         {
             try
@@ -123,16 +177,16 @@ namespace gameroombookingsys.Service
                     {
                         foreach (var deviceDto in dto.Devices)
                         {
-                            var device = new Device
+                            var device = await _deviceRepository.GetDeviceById(deviceDto.Id);
+                            if (device != null)
                             {
-                                Id = deviceDto.Id, // If existing device, set the ID
-                                Name = deviceDto.Name,
-                                Description = deviceDto.Description,
-                                Quantity = deviceDto.Quantity,
-                                Status = deviceDto.Status,
-                                PlayerId = deviceDto.PlayerId
-                            };
-                            booking.Devices.Add(device);
+                                booking.Devices.Add(device);
+                            }
+                            else
+                            {
+                                // Optionally handle the case where the device isn't found.
+                                throw new KeyNotFoundException($"Device with ID {deviceDto.Id} not found.");
+                            }
                         }
                     }
                 }
@@ -141,27 +195,7 @@ namespace gameroombookingsys.Service
                 var updatedBooking = await _repository.UpdateRoomBooking(booking);
 
                 // Map updated entity back to DTO
-                var updatedDto = new RoomBookingDto
-                {
-                    Id = updatedBooking.Id,
-                    BookingDateTime = updatedBooking.BookingDateTime,
-                    Duration = updatedBooking.Duration,
-                    isPlayingAlone = updatedBooking.isPlayingAlone,
-                    Fellows = updatedBooking.Fellows,
-                    Status = updatedBooking.Status,
-                    Devices = updatedBooking.Devices
-                        .Select(d => new DeviceDto
-                        {
-                            Id = d.Id,
-                            Name = d.Name,
-                            Description = d.Description,
-                            Quantity = d.Quantity,
-                            Status = d.Status,
-                            PlayerId = d.PlayerId
-                        })
-                        .ToList()
-                };
-
+                var updatedDto = new RoomBookingDto(updatedBooking);
                 return updatedDto;
             }
             catch (Exception ex)
@@ -173,15 +207,14 @@ namespace gameroombookingsys.Service
 
         private void UpdateBookingStatus(RoomBooking booking)
         {
-            // Only update status if the booking hasn't been cancelled.
             if (booking.Status != BookingStatus.Cancelled)
             {
                 var now = DateTime.Now;
-                if (now >= booking.BookingDateTime && now < booking.BookingDateTime.Add(booking.Duration))
+                if (now >= booking.BookingDateTime && now < booking.BookingDateTime.AddHours(booking.Duration))
                 {
                     booking.Status = BookingStatus.Ongoing;
                 }
-                else if (now >= booking.BookingDateTime.Add(booking.Duration))
+                else if (now >= booking.BookingDateTime.AddHours(booking.Duration))
                 {
                     booking.Status = BookingStatus.Completed;
                 }
@@ -191,28 +224,23 @@ namespace gameroombookingsys.Service
                 }
             }
         }
-        private RoomBookingDto MapToDto(RoomBooking booking)
+
+        public async Task<bool> DeleteBooking(int id)
         {
-            return new RoomBookingDto
+            try
             {
-                Id = booking.Id,
-                BookingDateTime = booking.BookingDateTime,
-                Duration = booking.Duration,
-                isPlayingAlone = booking.isPlayingAlone,
-                Fellows = booking.Fellows,
-                Status = booking.Status,
-                Devices = booking.Devices
-                    .Select(d => new DeviceDto
-                    {
-                        Id = d.Id,
-                        Name = d.Name,
-                        Description = d.Description,
-                        Quantity = d.Quantity,
-                        Status = d.Status,
-                        PlayerId = d.PlayerId
-                    })
-                    .ToList()
-            };
+                var booking = await _repository.GetRoomBookingById(id);
+                if (booking == null)
+                    throw new KeyNotFoundException($"Booking with ID {id} was not found.");
+
+                await _repository.DeleteRoomBooking(booking);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error deleting booking with ID {id}.");
+                throw new Exception($"An error occurred while deleting booking with ID {id}: {ex.Message}", ex);
+            }
         }
 
         public async Task<List<RoomBookingDto>> GetAllBookings()
@@ -226,7 +254,7 @@ namespace gameroombookingsys.Service
                 {
                     UpdateBookingStatus(booking);
                 }
-                return bookings.Select(b => MapToDto(b)).ToList();
+                return bookings.Select(b => new RoomBookingDto(b)).ToList();
             }
             catch (Exception ex)
             {
@@ -246,7 +274,7 @@ namespace gameroombookingsys.Service
                 }
                 // Filter bookings marked as Completed.
                 var historyBookings = bookings.Where(b => b.Status == BookingStatus.Completed).ToList();
-                return historyBookings.Select(b => MapToDto(b)).ToList();
+                return historyBookings.Select(b => new RoomBookingDto(b)).ToList();
             }
             catch (Exception ex)
             {
@@ -266,7 +294,7 @@ namespace gameroombookingsys.Service
                 }
                 // Filter bookings marked as Ongoing.
                 var ongoingBookings = bookings.Where(b => b.Status == BookingStatus.Ongoing).ToList();
-                return ongoingBookings.Select(b => MapToDto(b)).ToList();
+                return ongoingBookings.Select(b => new RoomBookingDto(b)).ToList();
             }
             catch (Exception ex)
             {
@@ -286,7 +314,7 @@ namespace gameroombookingsys.Service
                 }
                 // Filter bookings marked as Upcoming.
                 var upcomingBookings = bookings.Where(b => b.Status == BookingStatus.Upcoming).ToList();
-                return upcomingBookings.Select(b => MapToDto(b)).ToList();
+                return upcomingBookings.Select(b => new RoomBookingDto(b)).ToList();
             }
             catch (Exception ex)
             {
@@ -308,7 +336,7 @@ namespace gameroombookingsys.Service
                 // Persist any status changes.
                 var updatedBooking = await _repository.UpdateRoomBooking(booking);
 
-                return MapToDto(updatedBooking);
+                return new RoomBookingDto(updatedBooking);
             }
             catch (Exception ex)
             {
@@ -317,23 +345,26 @@ namespace gameroombookingsys.Service
             }
         }
 
-        public async Task<RoomBookingDto> GetRoomBookingByPlayerId(int playerId)
+        public async Task<List<RoomBookingDto>> GetRoomBookingsByPlayerId(int playerId)
         {
             try
             {
                 // Retrieve the booking by player ID.
-                var booking = await _repository.GetRoomBookingByPlayerId(playerId);
-                if (booking == null)
-                    throw new KeyNotFoundException("Booking for the specified player not found.");
+                var bookings = await _repository.GetRoomBookingsByPlayerId(playerId);
+                 if (bookings == null || !bookings.Any())
+                    throw new KeyNotFoundException("No bookings found for the specified player.");
 
-                // Update the booking status in memory.
-                UpdateBookingStatus(booking);
+                    foreach (var b in bookings)
+                        {
+                        var currentPassCode = b.PassCode;
+                        UpdateBookingStatus(b);
+                        // Reassign the PassCode to preserve it
+                        b.PassCode = currentPassCode;
+                        await _repository.UpdateRoomBooking(b); 
+                        }
 
-                // Persist any changes made by UpdateBookingStatus.
-                var updatedBooking = await _repository.UpdateRoomBooking(booking);
-
-                // Map the updated entity to a DTO and return it.
-                return MapToDto(updatedBooking);
+                     // Map each updated entity to a DTO
+                      return bookings.Select(b => new RoomBookingDto(b)).ToList();
             }
             catch (Exception ex)
             {
@@ -341,5 +372,12 @@ namespace gameroombookingsys.Service
                 throw;
             }
         }  
+
+        private string GeneratePassCode()
+        {
+            // Generate a random 6-digit passcode
+            Random random = new Random();
+            return random.Next(100000, 999999).ToString();
+        }
     }
 }

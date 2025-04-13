@@ -9,10 +9,13 @@ export type RoomBookingDto = {
     createdAt?: string;
     updatedAt?: string;
     bookingDateTime?: string;
-    duration?: string;
+    duration?: number;
     devices?: Array<DeviceDto> | null;
     isPlayingAlone?: boolean;
     fellows?: number;
     status?: BookingStatus;
+    playerId?: number;
+    passCode?: string | null;
+    isPassCodeValid?: boolean;
 };
 

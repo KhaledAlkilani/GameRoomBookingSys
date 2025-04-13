@@ -21,7 +21,18 @@ namespace gameroombookingsys
             {
                 entity.Property(e => e.BookingDateTime)
                .HasColumnType("datetime2");
+
+                // Update Duration column to be a float (SQL Server float corresponds to a C# double)
+                entity.Property(e => e.Duration)
+                    .HasColumnType("float");
             });
+
+            modelBuilder.Entity<RoomBooking>()
+               .HasOne(rb => rb.Player)
+               .WithMany(p => p.RoomBookings)
+               .HasForeignKey(rb => rb.PlayerId)
+               .HasConstraintName("FK_RoomBookings_Players_PlayerId")
+               .OnDelete(DeleteBehavior.Cascade);
 
             // Configure many-to-many relationship between RoomBooking and Device using an auto join table.
             modelBuilder.Entity<RoomBooking>()
@@ -40,7 +51,7 @@ namespace gameroombookingsys
                         .WithMany()
                         .HasForeignKey("RoomBookingId")
                         .HasConstraintName("FK_DeviceRoomBooking_RoomBookings_RoomBookingId")
-                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .OnDelete(DeleteBehavior.Cascade) 
                 );
         }
     }

@@ -11,9 +11,11 @@ export { BookingStatus } from './models/BookingStatus';
 export type { DeviceDto } from './models/DeviceDto';
 export { DeviceStatus } from './models/DeviceStatus';
 export type { PlayerDto } from './models/PlayerDto';
+export type { RegistrationRequest } from './models/RegistrationRequest';
 export type { RoomBookingDto } from './models/RoomBookingDto';
 
 export { DevicesService } from './services/DevicesService';
 export { PlayersService } from './services/PlayersService';
+export { RegistrationService } from './services/RegistrationService';
 export { RoomBookingsService } from './services/RoomBookingsService';
 export { TokenService } from './services/TokenService';

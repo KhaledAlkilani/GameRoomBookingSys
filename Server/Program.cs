@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
+using gameroombookingsys.IService;
 
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 var builder = WebApplication.CreateBuilder(args);
@@ -36,6 +37,7 @@ builder.Services.AddScoped<IDevicesRepository, DevicesRepository>();
 builder.Services.AddScoped<IDevicesService, DevicesService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<KeycloakHelper>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -73,6 +75,12 @@ builder.Services.AddCors(options =>
         .AllowAnyHeader();
     });
 });
+
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
 
 var secret = "gameroombookingsys_gameroombookingsys";
 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret))

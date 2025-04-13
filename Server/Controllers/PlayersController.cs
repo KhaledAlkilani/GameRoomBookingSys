@@ -103,4 +103,28 @@ public class PlayersController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Error fetching players", error = ex.Message });
         }
     }
+
+    [HttpPut("{id}")]
+    [ProducesResponseType(typeof(PlayerDto), StatusCodes.Status200OK)]
+    [SwaggerOperation(OperationId = "UpdatePlayerInfoById")]
+    public async Task<ActionResult<PlayerDto>> UpdatePlayerInfoById(int id, [FromBody] PlayerDto playerDto)
+    {
+        try
+        {
+            if (id != playerDto.Id)
+                return BadRequest("ID mismatch between URL and payload.");
+
+            var updatedPlayer = await _playerService.UpdatePlayerInfo(playerDto);
+            return Ok(updatedPlayer);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new { message = "Error updating player info", error = ex.Message });
+        }
+    }
+
 }

@@ -5,7 +5,7 @@
 namespace gameroombookingsys.Migrations
 {
     /// <inheritdoc />
-    public partial class SeedPlayers : Migration
+    public partial class ConvertToUtcNowForPasscodeValidation : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

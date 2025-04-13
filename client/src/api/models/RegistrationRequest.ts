@@ -2,7 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export enum DeviceStatus {
-    AVAILABLE = 'Available',
-    MAINTENANCE = 'Maintenance',
-}
+export type RegistrationRequest = {
+    email?: string | null;
+};
+
