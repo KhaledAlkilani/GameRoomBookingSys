@@ -16,6 +16,25 @@ namespace Gameroombookingsys.Repository
             _context = context;
         }
 
+        public async Task<Player> GetPlayerById(int playerId)
+        {
+            try
+            {
+                var player = await _context.Players.FindAsync(playerId);
+                if (player == null)
+                {
+                    throw new KeyNotFoundException($"Player with id {playerId} not found.");
+                }
+                return player;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error retrieving player with id {playerId}.");
+                throw new Exception($"An error occurred while retrieving player with id {playerId}.", ex);
+            }
+        }
+
+
         public async Task<Player> GetPlayerByEmail(string email)
         {
             var playerByEmail = await _context.Players.FirstOrDefaultAsync(p => p.Email == email);

@@ -7,6 +7,7 @@ namespace gameroombookingsys.IRepository
         Task<Player> GetPlayerByEmail(string email);
         Task<Player> GetPlayerByUsername(string username);
         Task<List<Player>> GetAllPlayers();
-        Task<Player> UpdatePlayer(Player player); 
+        Task<Player> UpdatePlayer(Player player);
+        Task<Player> GetPlayerById(int playerId);
     }
 }

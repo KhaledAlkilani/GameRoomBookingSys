@@ -7,6 +7,7 @@ using gameroombookingsys.IRepository;
 using gameroombookingsys.IService;
 using Gameroombookingsys.Models;
 using Gameroombookingsys.Repository;
+using System.Numerics;
 
 namespace gameroombookingsys.Service
 {
@@ -196,6 +197,31 @@ namespace gameroombookingsys.Service
 
                 // Map updated entity back to DTO
                 var updatedDto = new RoomBookingDto(updatedBooking);
+
+                // Retrieve the player so we can get the email.
+                // Ensure your players repository has a method GetPlayerById.
+                var player = await _playersRepository.GetPlayerById(booking.PlayerId);
+                if (player == null)
+                {
+                    throw new Exception("Associated player not found.");
+                }
+
+                // Build email subject and body based on booking status.
+                string subject, body;
+                if (updatedBooking.Status == BookingStatus.Cancelled)
+                {
+                    subject = "Booking Cancellation Confirmation";
+                    body = $"Your booking has been cancelled. Your game room pass code was: {updatedDto.PassCode}";
+                }
+                else
+                {
+                    subject = "Game Room Booking Confirmation";
+                    body = $"Your booking has been updated. Your game room pass code is: {updatedDto.PassCode}";
+                }
+
+                // Send confirmation email
+                await _emailService.SendBookingConfirmationEmailAsync(player.Email, subject, body);
+
                 return updatedDto;
             }
             catch (Exception ex)
