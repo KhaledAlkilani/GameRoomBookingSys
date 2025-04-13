@@ -1,10 +1,12 @@
 import { AppThemeSwitch } from "./AppThemeSwitch";
 import { Box, Typography } from "@mui/material";
+import LanguagePicker from "./LanguagePicker";
 
 const Settings = () => {
   return (
     <Box sx={styles.container}>
       <Typography sx={styles.title}>Settings</Typography>
+      <LanguagePicker />
       <AppThemeSwitch />
     </Box>
   );

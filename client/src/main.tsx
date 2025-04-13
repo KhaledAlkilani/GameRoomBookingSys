@@ -8,6 +8,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
 import { SnackbarProvider } from "notistack";
 import { LoaderProvider } from "./context/LoaderProvider.tsx";
+import I18nProvider from "./i18n/context/I18nProvider.tsx";
 
 function initApiHeadersFromStorage() {
   const token = localStorage.getItem("jwtToken");
@@ -22,14 +23,16 @@ function initApiHeadersFromStorage() {
 initApiHeadersFromStorage();
 
 createRoot(document.getElementById("root")!).render(
-  <LoaderProvider>
-    <SnackbarProvider>
-      <ThemeProvider theme={appTheme}>
-        <CssBaseline />
-        <StrictMode>
-          <App />
-        </StrictMode>
-      </ThemeProvider>
-    </SnackbarProvider>
-  </LoaderProvider>
+  <I18nProvider>
+    <LoaderProvider>
+      <SnackbarProvider>
+        <ThemeProvider theme={appTheme}>
+          <CssBaseline />
+          <StrictMode>
+            <App />
+          </StrictMode>
+        </ThemeProvider>
+      </SnackbarProvider>
+    </LoaderProvider>
+  </I18nProvider>
 );
