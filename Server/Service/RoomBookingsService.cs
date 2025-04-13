@@ -4,6 +4,7 @@ using gameroombookingsys.Enums;
 using gameroombookingsys.Helpers;
 using gameroombookingsys.Interfaces;
 using gameroombookingsys.IRepository;
+using gameroombookingsys.IService;
 using Gameroombookingsys.Models;
 using Gameroombookingsys.Repository;
 
@@ -16,18 +17,20 @@ namespace gameroombookingsys.Service
         private readonly IPlayersRepository _playersRepository;
         private readonly ILogger<RoomBookingsService> _logger;
         private readonly KeycloakHelper _keycloakHelper;
+        private readonly IEmailService _emailService;
         public RoomBookingsService(IRoomBookingsRepository repository,
         IPlayersRepository playersRepository,
         ILogger<RoomBookingsService> logger,
         KeycloakHelper keycloakHelper,
-        IDevicesRepository deviceRepository)
+        IDevicesRepository deviceRepository,
+        IEmailService emailService)
         {
             _repository = repository;
             _playersRepository = playersRepository;
             _logger = logger;
             _keycloakHelper = keycloakHelper;
             _deviceRepository = deviceRepository;
-
+            _emailService = emailService; 
         }
         public async Task<RoomBookingDto> BookGameRoom(RoomBookingDto dto)
         {
@@ -42,6 +45,10 @@ namespace gameroombookingsys.Service
                 var player = await _playersRepository.GetPlayerByEmail(email);
                 if (player == null)
                     throw new Exception("Player not found for the authenticated user.");
+
+                // Ensure player's email is a university email
+                if (!_keycloakHelper.IsSchoolEmail(email))
+                    throw new Exception("A university email is required.");
 
                 // Set the booking's playerId to the authenticated player's ID
                 dto.PlayerId = player.Id;
@@ -114,6 +121,12 @@ namespace gameroombookingsys.Service
                 // Update the DTO's ID to reflect the newly created booking
                 dto.Id = savedBooking.Id;
                 dto.PassCode = savedBooking.PassCode;
+
+                // Send confirmation email with the passcode 
+                var subject = "Game Room Booking Confirmation";
+                var body = $"Your booking has been confirmed. Your game room pass code is: {savedBooking.PassCode}";
+                await _emailService.SendBookingConfirmationEmailAsync(player.Email, subject, body);
+
                 return dto;
             }
             catch (Exception ex)
