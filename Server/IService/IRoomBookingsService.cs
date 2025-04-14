@@ -13,5 +13,6 @@ namespace gameroombookingsys.Interfaces
         Task<List<RoomBookingDto>> GetOngoingBookings();
         Task<List<RoomBookingDto>> GetHistoryBookings();
         Task<bool> DeleteBooking(int id);
+        Task<List<CalendarEventDto>> GetFreeTimeEventsForDay(DateTime day);
     }
 }

@@ -15,8 +15,10 @@ export const api = {
 
 
 export * from "./models/BookingStatus";
+export * from "./models/CalendarEventDto";
 export * from "./models/DeviceDto";
 export * from "./models/DeviceStatus";
 export * from "./models/PlayerDto";
 export * from "./models/RegistrationRequest";
+export * from "./models/RegistrationResponse";
 export * from "./models/RoomBookingDto";

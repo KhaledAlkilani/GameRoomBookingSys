@@ -397,9 +397,66 @@ namespace gameroombookingsys.Service
                 _logger.LogError(ex, $"Error retrieving booking for player with ID {playerId}.");
                 throw;
             }
-        }  
+        }
+         
+    public async Task<List<CalendarEventDto>> GetFreeTimeEventsForDay(DateTime day)
+    {
+        // Define room operating hours
+        DateTime openTime = day.Date.AddHours(8);
+        DateTime closeTime = day.Date.AddHours(20);
 
-        private string GeneratePassCode()
+        // Fetch all bookings (you can also use a method that filters by day if available)
+        var allBookings = await _repository.GetAllBookings();
+
+        // Filter bookings for the specific day and that are not cancelled
+        var dayBookings = allBookings
+            .Where(b =>
+                b.BookingDateTime.Date == day.Date &&
+                b.Status != BookingStatus.Cancelled)
+            .OrderBy(b => b.BookingDateTime)
+            .ToList();
+
+        var freeIntervals = new List<CalendarEventDto>();
+
+        DateTime currentFreeStart = openTime;
+        foreach (var booking in dayBookings)
+        {
+            DateTime bookingStart = booking.BookingDateTime;
+            // If there is a gap between the current free start and the booking start, that is free.
+            if (bookingStart > currentFreeStart)
+            {
+                freeIntervals.Add(new CalendarEventDto
+                {
+                    Start = currentFreeStart,
+                    End = bookingStart,
+                    Display = "background",
+                    Color = "lightgreen"
+                });
+            }
+            // Update the current free start to the later of what it was and the end of this booking.
+            DateTime bookingEnd = booking.BookingDateTime.AddHours(booking.Duration);
+            if (bookingEnd > currentFreeStart)
+            {
+                currentFreeStart = bookingEnd;
+            }
+        }
+
+        // If there's a free interval between the end of the last booking and closing time, add it.
+        if (currentFreeStart < closeTime)
+        {
+            freeIntervals.Add(new CalendarEventDto
+            {
+                Start = currentFreeStart,
+                End = closeTime,
+                Display = "background",
+                Color = "lightgreen"
+            });
+        }
+
+        return freeIntervals;
+    } 
+
+    private string GeneratePassCode()
         {
             // Generate a random 6-digit passcode
             Random random = new Random();

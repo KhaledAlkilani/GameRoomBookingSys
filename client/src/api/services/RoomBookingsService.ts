@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { CalendarEventDto } from '../models/CalendarEventDto';
 import type { RoomBookingDto } from '../models/RoomBookingDto';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
@@ -128,6 +129,22 @@ export class RoomBookingsService {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/gameroombookings/allbookings',
+        });
+    }
+    /**
+     * @param date
+     * @returns CalendarEventDto OK
+     * @throws ApiError
+     */
+    public static getFreeTimeEventsForDay(
+        date?: string,
+    ): CancelablePromise<Array<CalendarEventDto>> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/gameroombookings/free-time-events',
+            query: {
+                'date': date,
+            },
         });
     }
 }

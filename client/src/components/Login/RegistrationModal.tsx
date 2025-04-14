@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Box, Button, Modal, TextField, Typography } from "@mui/material";
-import { usePlayerInfo } from "../../hooks/usePlayerInfo";
 import { enqueueSnackbar } from "notistack";
 
 interface RegistrationModalProps {
@@ -24,9 +23,7 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
     }
     try {
       await onSend(email);
-      enqueueSnackbar(`Registration link sent to: ${email}`, {
-        variant: "success",
-      });
+      setEmail("");
       setError("");
       onClose();
     } catch (e: any) {
@@ -90,6 +87,4 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
 
 export default RegistrationModal;
 
-const styles = {
-    
-};
+const styles = {};

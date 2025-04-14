@@ -206,6 +206,30 @@ namespace gameroombookingsys.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError,
                     new { Message = ex.Message });
             }
-        }  
+        }
+
+        // GET api/gameroombookings/free-time-events?date=2025-05-01
+        [HttpGet("free-time-events")]
+        [ProducesResponseType(typeof(List<CalendarEventDto>), StatusCodes.Status200OK)]
+        [SwaggerOperation(OperationId = "GetFreeTimeEventsForDay")]
+        public async Task<ActionResult<List<CalendarEventDto>>> GetFreeTimeEventsForDay([FromQuery] string date)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(date) || !DateTime.TryParse(date, out DateTime day))
+                {
+                    return BadRequest(new { Message = "Invalid date parameter. Please provide a valid date (e.g., '2025-05-01')." });
+                }
+
+                var freeEvents = await _roomBookingService.GetFreeTimeEventsForDay(day);
+                return Ok(freeEvents);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving free time events for day {Date}.", date);
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = ex.Message });
+            }
+        }
+
     }
 }

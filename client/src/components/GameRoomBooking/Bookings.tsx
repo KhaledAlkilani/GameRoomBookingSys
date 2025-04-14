@@ -1,5 +1,5 @@
 import { Box, Typography, Modal } from "@mui/material";
-import { RoomBookingDto } from "../../api";
+import { RoomBookingDto, RoomBookingsService } from "../../api";
 import { useContext, useEffect, useState } from "react";
 import { api, BookingStatus, DeviceDto } from "../../api/api";
 import dayjs, { Dayjs } from "dayjs";
@@ -39,6 +39,7 @@ const Bookings = () => {
   const [originalBooking, setOriginalBooking] = useState<RoomBookingDto | null>(
     null
   );
+  const [freeTimeEvents, setFreeTimeEvents] = useState<any[]>([]);
 
   useEffect(() => {
     if (playerInfo && playerInfo.id) {
@@ -66,8 +67,7 @@ const Bookings = () => {
       });
   }, []);
 
-  // Map bookings to FullCalendar event objects.
-  const events = calendar.map((booking, index) => {
+  const bookedEvents = calendar.map((booking) => {
     const start = booking.bookingDateTime
       ? new Date(booking.bookingDateTime)
       : new Date();
@@ -86,6 +86,33 @@ const Bookings = () => {
       extendedProps: { booking },
     };
   });
+
+  // Fetch free time events for the next 7 days and store in state.
+  useEffect(() => {
+    const fetchFreeTimeEvents = async () => {
+      const ftEvents: any[] = [];
+      for (let i = 0; i < 14; i++) {
+        const day = new Date();
+        day.setDate(day.getDate() + i);
+        const freeIntervals = await RoomBookingsService.getFreeTimeEventsForDay(
+          day.toISOString()
+        );
+        ftEvents.push(
+          ...freeIntervals.map((interval) => ({
+            start: interval.start,
+            end: interval.end,
+            display: interval.display,
+            backgroundColor: interval.color,
+          }))
+        );
+      }
+      setFreeTimeEvents(ftEvents);
+    };
+    fetchFreeTimeEvents();
+  }, []);
+
+  // Merge free time background events with booked events.
+  const events = [...freeTimeEvents, ...bookedEvents];
 
   // Open modal to create a new booking when a day cell is clicked
   const handleCreateNewBooking = (arg: any) => {

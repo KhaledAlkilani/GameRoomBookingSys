@@ -154,6 +154,6 @@ const styles = {
   linksRow: {
     display: "flex",
     justifyContent: "space-between",
-    mt: 1
+    mt: 1,
   },
 };
