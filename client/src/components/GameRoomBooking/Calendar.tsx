@@ -2,6 +2,7 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import { Box } from "@mui/material";
 
 interface CalendarProps {
   events: any[];
@@ -17,7 +18,7 @@ const Calendar = ({
   onShowExistingBooking,
 }: CalendarProps) => {
   return (
-    <>
+    <Box sx={{ height: "calc(100vh - 140px)" }}>
       <FullCalendar
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="dayGridMonth"
@@ -28,7 +29,7 @@ const Calendar = ({
           right: "dayGridMonth,timeGridWeek,timeGridDay",
         }}
         events={events}
-        height="650px"
+        height="100%"
         dateClick={onCreateNewBooking}
         eventClick={onShowExistingBooking}
         eventDidMount={(info) => {
@@ -38,7 +39,7 @@ const Calendar = ({
           );
         }}
       />
-    </>
+    </Box>
   );
 };
 

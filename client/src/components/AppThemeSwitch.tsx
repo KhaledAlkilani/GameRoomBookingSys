@@ -1,10 +1,9 @@
 import {
-  Box,
   FormControl,
   FormControlLabel,
-  FormLabel,
   Radio,
   RadioGroup,
+  Typography,
 } from "@mui/material";
 import { useColorScheme } from "@mui/material/styles";
 import { useEffect, useState } from "react";
@@ -50,20 +49,20 @@ export const AppThemeSwitch = () => {
   };
 
   return (
-    <Box>
-      <FormControl>
-        <FormLabel id="demo-theme-toggle">Theme</FormLabel>
-        <RadioGroup
-          aria-labelledby="demo-theme-toggle"
-          name="theme-toggle"
-          row
-          value={currentTheme}
-          onChange={handleThemeChange}
-        >
-          <FormControlLabel value="light" control={<Radio />} label="Light" />
-          <FormControlLabel value="dark" control={<Radio />} label="Dark" />
-        </RadioGroup>
-      </FormControl>
-    </Box>
+    <FormControl>
+      <Typography mb={1} mt={2} id="demo-theme-toggle">
+        Theme
+      </Typography>
+      <RadioGroup
+        aria-labelledby="demo-theme-toggle"
+        name="theme-toggle"
+        row
+        value={currentTheme}
+        onChange={handleThemeChange}
+      >
+        <FormControlLabel value="light" control={<Radio />} label="Light" />
+        <FormControlLabel value="dark" control={<Radio />} label="Dark" />
+      </RadioGroup>
+    </FormControl>
   );
 };

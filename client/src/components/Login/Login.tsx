@@ -6,7 +6,6 @@ import {
   TextField,
   Typography,
   Button,
-  Link,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { api } from "../../api/api";
@@ -15,6 +14,7 @@ import { PlayerDto } from "../../api/api";
 import gameRoomImage from "../../assets/gameroomimage.svg";
 import RegistrationModal from "./RegistrationModal";
 import { enqueueSnackbar } from "notistack";
+import AppTitleColored from "../../assets/APP-TITLE-COLORED.svg";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -77,9 +77,12 @@ const Login: React.FC = () => {
     <Box sx={styles.background}>
       <Container maxWidth="sm">
         <Paper sx={styles.paper}>
-          <Typography variant="h5" sx={{ mb: 2, textAlign: "center" }}>
-            Login
-          </Typography>
+          <Box sx={styles.titleAndLogo}>
+            <Typography variant="h5" sx={styles.title}>
+              Log in to
+            </Typography>
+            <img src={AppTitleColored} alt="X Game Room" width={200} />
+          </Box>
 
           <TextField
             label="Enter your email (university email only)"
@@ -154,6 +157,16 @@ const styles = {
   linksRow: {
     display: "flex",
     justifyContent: "space-between",
-    mt: 1
+    mt: 1,
+  },
+  titleAndLogo: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    mb: 2,
+  },
+  title: {
+    mr: 1,
+    textAlign: "center",
   },
 };

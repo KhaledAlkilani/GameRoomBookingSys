@@ -1,6 +1,6 @@
 import { Box, Typography, Modal } from "@mui/material";
-import { RoomBookingDto } from "../../api";
-import { useEffect, useState } from "react";
+import { RoomBookingDto, RoomBookingsService } from "../../api";
+import { useContext, useEffect, useState } from "react";
 import { api, BookingStatus, DeviceDto } from "../../api/api";
 import dayjs, { Dayjs } from "dayjs";
 import utc from "dayjs/plugin/utc"; // Importing the utc plugin for dayjs
@@ -10,6 +10,8 @@ import { usePlayerInfo } from "../../hooks/usePlayerInfo";
 import BookingForm, { ModalMode } from "./BookingForm";
 import Calendar from "./Calendar";
 import { getStatusColor, getStatusTooltip } from "./BookingHelpers";
+import { LoaderContext } from "../../context/LoaderProvider";
+import { usePrompt } from "../../hooks/usePrompt";
 
 const initialBooking: RoomBookingDto = {
   bookingDateTime: undefined,
@@ -22,6 +24,7 @@ const initialBooking: RoomBookingDto = {
 const Bookings = () => {
   const { enqueueSnackbar } = useSnackbar();
   const { playerInfo } = usePlayerInfo();
+  const { setLoading } = useContext(LoaderContext);
 
   const [calendar, setCalendar] = useState<RoomBookingDto[]>([]);
   const [calendarKey, setCalendarKey] = useState(0);
@@ -36,6 +39,7 @@ const Bookings = () => {
   const [originalBooking, setOriginalBooking] = useState<RoomBookingDto | null>(
     null
   );
+  const [freeTimeEvents, setFreeTimeEvents] = useState<any[]>([]);
 
   useEffect(() => {
     if (playerInfo && playerInfo.id) {
@@ -63,8 +67,7 @@ const Bookings = () => {
       });
   }, []);
 
-  // Map bookings to FullCalendar event objects.
-  const events = calendar.map((booking, index) => {
+  const bookedEvents = calendar.map((booking) => {
     const start = booking.bookingDateTime
       ? new Date(booking.bookingDateTime)
       : new Date();
@@ -83,6 +86,33 @@ const Bookings = () => {
       extendedProps: { booking },
     };
   });
+
+  // Fetch free time events for the next 7 days and store in state.
+  useEffect(() => {
+    const fetchFreeTimeEvents = async () => {
+      const ftEvents: any[] = [];
+      for (let i = 0; i < 14; i++) {
+        const day = new Date();
+        day.setDate(day.getDate() + i);
+        const freeIntervals = await RoomBookingsService.getFreeTimeEventsForDay(
+          day.toISOString()
+        );
+        ftEvents.push(
+          ...freeIntervals.map((interval) => ({
+            start: interval.start,
+            end: interval.end,
+            display: interval.display,
+            backgroundColor: interval.color,
+          }))
+        );
+      }
+      setFreeTimeEvents(ftEvents);
+    };
+    fetchFreeTimeEvents();
+  }, []);
+
+  // Merge free time background events with booked events.
+  const events = [...freeTimeEvents, ...bookedEvents];
 
   // Open modal to create a new booking when a day cell is clicked
   const handleCreateNewBooking = (arg: any) => {
@@ -240,6 +270,7 @@ const Bookings = () => {
 
   const handleRoomBooking = async () => {
     if (checkFieldsValidation()) {
+      setLoading(true);
       try {
         const response = await api.RoomBookingsService.bookGameRoom(bookRoom);
         enqueueSnackbar(
@@ -269,12 +300,16 @@ const Bookings = () => {
           enqueueSnackbar("Error booking room", { variant: "error" });
         }
         console.error("Error booking room:", error);
+      } finally {
+        setLoading(false);
       }
     }
   };
 
   const updateBooking = async () => {
     if (!selectedBooking || !selectedBooking.id) return;
+
+    setLoading(true);
     try {
       const payload = {
         ...selectedBooking,
@@ -313,6 +348,8 @@ const Bookings = () => {
     } catch (error: any) {
       enqueueSnackbar("Error updating booking", { variant: "error" });
       console.error("Error updating booking:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -327,6 +364,7 @@ const Bookings = () => {
       ...selectedBooking,
       status: BookingStatus.CANCELLED,
     };
+    setLoading(true);
     try {
       await api.RoomBookingsService.updateRoomBooking(
         selectedBooking.id,
@@ -343,6 +381,8 @@ const Bookings = () => {
     } catch (error: any) {
       enqueueSnackbar("Error cancelling booking", { variant: "error" });
       console.error("Error cancelling booking:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -352,6 +392,8 @@ const Bookings = () => {
       "Are you sure you want to delete this booking?"
     );
     if (!confirmDelete) return;
+
+    setLoading(true);
     try {
       await api.RoomBookingsService.deleteBooking(selectedBooking.id);
       enqueueSnackbar("Booking deleted successfully!", { variant: "success" });
@@ -362,8 +404,17 @@ const Bookings = () => {
     } catch (error: any) {
       enqueueSnackbar("Error deleting booking", { variant: "error" });
       console.error("Error deleting booking:", error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  const isChanged = checkFieldsValidation() || checkFieldsChange();
+
+  usePrompt(
+    "You have unsaved changes. Are you sure you want to leave?",
+    isChanged
+  );
 
   return (
     <Box sx={styles.container}>

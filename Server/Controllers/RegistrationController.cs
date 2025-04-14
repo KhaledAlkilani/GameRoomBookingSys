@@ -21,7 +21,7 @@ namespace gameroombookingsys.Controllers
 
         // POST: api/registration/send-registration-link
         [HttpPost("send-registration-link")]
-        [ProducesResponseType(typeof(DeviceDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(RegistrationResponse), StatusCodes.Status200OK)]
         [SwaggerOperation(OperationId = "SendRegistrationLink")]
         public async Task<ActionResult> SendRegistrationLink([FromBody] RegistrationRequest request)
         {
@@ -49,5 +49,9 @@ namespace gameroombookingsys.Controllers
     public class RegistrationRequest
     {
         public string Email { get; set; }
+    } 
+    public class RegistrationResponse
+    {
+        public string Message { get; set; }
     }
 }

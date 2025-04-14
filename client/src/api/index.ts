@@ -8,10 +8,12 @@ export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
 export { BookingStatus } from './models/BookingStatus';
+export type { CalendarEventDto } from './models/CalendarEventDto';
 export type { DeviceDto } from './models/DeviceDto';
 export { DeviceStatus } from './models/DeviceStatus';
 export type { PlayerDto } from './models/PlayerDto';
 export type { RegistrationRequest } from './models/RegistrationRequest';
+export type { RegistrationResponse } from './models/RegistrationResponse';
 export type { RoomBookingDto } from './models/RoomBookingDto';
 
 export { DevicesService } from './services/DevicesService';
