@@ -91,6 +91,7 @@ const LanguagePicker = () => {
         )}
         clearOnEscape
         disableClearable
+        sx={{ width: 300 }}
       />
     </Stack>
   );

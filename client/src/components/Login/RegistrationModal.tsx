@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Box, Button, Modal, TextField, Typography } from "@mui/material";
-import { enqueueSnackbar } from "notistack";
+import AppTitleColored from "../../assets/APP-TITLE-COLORED.svg";
 
 interface RegistrationModalProps {
   open: boolean;
@@ -35,49 +35,43 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
     <Modal
       open={open}
       onClose={onClose}
-      sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
+      sx={styles.modal}
       BackdropProps={{
         sx: { backgroundColor: "rgba(0, 0, 0, 0.5)" },
       }}
     >
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          width: 600,
-          height: 400,
-          bgcolor: "background.paper",
-          boxShadow: 24,
-          p: 4,
-          borderRadius: 2,
-        }}
-      >
-        <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
-          Enter your university email to receive a registration link
-        </Typography>
-        <TextField
-          label="University Email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          fullWidth
-          margin="normal"
-        />
-        {error && (
-          <Typography color="error" variant="body2">
-            {error}
+      <Box sx={styles.wrapper}>
+        <Box sx={styles.titleAndLogo}>
+          <Typography variant="h5" sx={styles.title}>
+            Register in
           </Typography>
-        )}
-        <Box
-          sx={{ mt: 2, display: "flex", justifyContent: "flex-end", gap: 1 }}
-        >
-          <Button variant="outlined" onClick={onClose}>
-            Cancel
-          </Button>
+          <img src={AppTitleColored} alt="X Game Room" width={200} />
+        </Box>
+
+        <Box flex={1}>
+          <Typography variant="h6" sx={{ mb: 1 }}>
+            Enter your university email to receive a registration link
+          </Typography>
+          <TextField
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            fullWidth
+            margin="normal"
+          />
+          {error && (
+            <Typography color="error" variant="body2">
+              {error}
+            </Typography>
+          )}
+        </Box>
+        <Box sx={styles.buttons}>
           <Button variant="contained" onClick={handleSend}>
             Send
+          </Button>
+          <Button variant="outlined" onClick={onClose}>
+            Cancel
           </Button>
         </Box>
       </Box>
@@ -87,4 +81,33 @@ const RegistrationModal: React.FC<RegistrationModalProps> = ({
 
 export default RegistrationModal;
 
-const styles = {};
+const styles = {
+  modal: { display: "flex", alignItems: "center", justifyContent: "center" },
+  wrapper: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    width: 585,
+    height: 382,
+    bgcolor: "background.paper",
+    boxShadow: 24,
+    p: 5,
+    borderRadius: 2,
+  },
+  titleAndLogo: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    mb: 4,
+  },
+  title: {
+    mr: 1,
+    textAlign: "center",
+  },
+  buttons: {
+    display: "flex",
+    width: "100%",
+    gap: 2,
+    justifyContent: "flex-end",
+  },
+};

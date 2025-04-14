@@ -2,11 +2,13 @@ import { Typography, Box, Button, TextField } from "@mui/material";
 import { usePlayerInfo } from "../../hooks/usePlayerInfo";
 import UnknownProfilePic from "../../assets/UnknownProfilePic.svg";
 import { api, PlayerDto } from "../../api/api";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { usePrompt } from "../../hooks/usePrompt";
 import { enqueueSnackbar } from "notistack";
+import { LoaderContext } from "../../context/LoaderProvider";
 
 const PlayerProfile = () => {
+  const { setLoading } = useContext(LoaderContext);
   const { playerInfo, loading, setPlayerInfo } = usePlayerInfo();
 
   const [originalPlayerInfo, setOriginalPlayerInfo] =
@@ -34,6 +36,7 @@ const PlayerProfile = () => {
 
   const handleUpdatePlayerInfo = () => {
     if (playerInfo) {
+      setLoading(true);
       api.PlayersService.updatePlayerInfoById(playerInfo.id!, playerInfo)
         .then((updatedPlayer) => {
           setPlayerInfo(updatedPlayer);
@@ -50,6 +53,9 @@ const PlayerProfile = () => {
             "Error updating player info. Please try again later.",
             err
           );
+        })
+        .finally(() => {
+          setLoading(false);
         });
     }
   };
