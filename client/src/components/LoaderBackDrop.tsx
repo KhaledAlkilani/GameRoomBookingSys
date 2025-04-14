@@ -1,4 +1,4 @@
-import { CircularProgress, Box, Backdrop } from "@mui/material";
+import { CircularProgress, Backdrop } from "@mui/material";
 import { useContext } from "react";
 import { LoaderContext } from "../context/LoaderProvider";
 

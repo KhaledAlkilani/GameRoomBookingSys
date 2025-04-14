@@ -9,7 +9,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build && npm run generate-api",
     "generate-api": "npx openapi-typescript-codegen --input http://localhost:5025/swagger/v1/swagger.json --output src/api --client fetch && node generateApiWrapper.cjs",
-    "parse-translations": "cd . && node ./tools/move-old-translations.js ./old-translations ./public/locales && \"./node_modules/.bin/i18next\" && node ./tools/postprocess-locales.js ./public/locales && node ./tools/postprocess-default-locales.js ./public/locales/en && node ./tools/move-old-translations.js ./public/locales ./old-translations"
+    "parse-translations": "cd . && node ./tools/move-old-translations.js ./old-translations ./public/locales && \"./node_modules/.bin/i18next\" \"src/**/*.{js,jsx,ts,tsx}\" --config ./tools/i18next-parser.config.js && node ./tools/postprocess-locales.js ./public/locales && node ./tools/postprocess-default-locales.js ./public/locales/en && node ./tools/move-old-translations.js ./public/locales ./old-translations"
   },
   "proxy": "http://localhost:5025",
   "dependencies": {

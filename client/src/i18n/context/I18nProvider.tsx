@@ -1,4 +1,3 @@
-import { ThemeProvider } from "@mui/system";
 import { PropsWithChildren } from "react";
 import rtlPlugin from "stylis-plugin-rtl";
 import { CacheProvider } from "@emotion/react";
@@ -31,10 +30,7 @@ const cacheLTR = createCache({
  */
 const backend = BackendPlugin({
   getTranslation: async (lng, ns, options) => {
-    const response = await fetch(
-      `${process.env.PUBLIC_URL}/locales/${lng}/${ns}.json`,
-      options
-    );
+    const response = await fetch(`/locales/${lng}/${ns}.json`, options);
 
     if (!response.ok) {
       throw new Error("Failed to load translation " + lng + " " + ns);
@@ -56,8 +52,8 @@ i18n
   .use(backend)
   .init({
     debug: true,
-    lng: localStorage.getItem("lang") || undefined,
-    fallbackLng: "en",
+    lng: localStorage.getItem("lang") || "fi",
+    fallbackLng: "fi",
     supportedLngs: Object.keys(locales),
     ns: ["common"],
     defaultNS: "common",

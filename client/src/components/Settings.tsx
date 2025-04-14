@@ -1,11 +1,13 @@
 import { AppThemeSwitch } from "./AppThemeSwitch";
 import { Box, Typography } from "@mui/material";
 import LanguagePicker from "./LanguagePicker";
+import { useTranslation } from "react-i18next";
 
 const Settings = () => {
+  const { t } = useTranslation();
   return (
     <Box sx={styles.container}>
-      <Typography sx={styles.title}>Settings</Typography>
+      <Typography sx={styles.title}>{t("Settings")}</Typography>
       <LanguagePicker />
       <AppThemeSwitch />
     </Box>

@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Autocomplete, TextField, Stack, Typography } from "@mui/material";
+import { Autocomplete, TextField, Stack } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import locales from "../i18n/locales";
 
@@ -14,9 +14,9 @@ import locales from "../i18n/locales";
 //   ar,
 // };
 
-const localeIcons: Record<string, any> = {
-  // If you have flag icons, map them here, otherwise leave empty.
-};
+// const localeIcons: Record<string, any> = {
+//   // If you have flag icons, map them here, otherwise leave empty.
+// };
 
 const LanguagePicker = () => {
   const { t, i18n } = useTranslation();
@@ -53,7 +53,7 @@ const LanguagePicker = () => {
 
   // Handle language change from the autocomplete.
   const handleLanguageSelect = (
-    event: React.SyntheticEvent,
+    _: React.SyntheticEvent,
     newValue: { code: string; nativeName: string; englishName: string } | null
   ) => {
     if (newValue) {
