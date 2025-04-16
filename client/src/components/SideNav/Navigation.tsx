@@ -5,8 +5,10 @@ import { useState } from "react";
 import AppTitle from "../../assets/APP-TITLE.svg";
 import { usePlayerInfo } from "../../hooks/usePlayerInfo";
 import LogoutIcon from "@mui/icons-material/Logout";
+import { useTranslation } from "react-i18next";
 
 const Navigation = () => {
+  const { t } = useTranslation();
   const { playerInfo, error } = usePlayerInfo();
   const location = useLocation();
 
@@ -17,7 +19,11 @@ const Navigation = () => {
       <Box sx={styles.title}>
         <img src={AppTitle} alt="X Game Room" style={{ textAlign: "center" }} />
       </Box>
-      {error && <Typography sx={styles.error}>Error: {error}</Typography>}
+      {error && (
+        <Typography sx={styles.error}>
+          {t("Error")}: {error}
+        </Typography>
+      )}
       <Box sx={styles.navButtons}>
         {navButtons.map((button) => (
           <Button
@@ -30,7 +36,7 @@ const Navigation = () => {
               borderColor: "black",
             }}
           >
-            <Link to={button.path}>{button.label}</Link>
+            <Link to={button.path}>{t(button.label)}</Link>
           </Button>
         ))}
       </Box>

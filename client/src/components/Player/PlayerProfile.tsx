@@ -6,10 +6,12 @@ import { useContext, useEffect, useState } from "react";
 import { usePrompt } from "../../hooks/usePrompt";
 import { enqueueSnackbar } from "notistack";
 import { LoaderContext } from "../../context/LoaderProvider";
+import { useTranslation } from "react-i18next";
 
 const PlayerProfile = () => {
   const { setLoading } = useContext(LoaderContext);
   const { playerInfo, loading, setPlayerInfo } = usePlayerInfo();
+  const { t } = useTranslation();
 
   const [originalPlayerInfo, setOriginalPlayerInfo] =
     useState<PlayerDto | null>(null);
@@ -66,7 +68,7 @@ const PlayerProfile = () => {
     playerInfo?.pictureUrl !== originalPlayerInfo?.pictureUrl;
 
   usePrompt(
-    "You have unsaved changes. Are you sure you want to leave?",
+    t("You have unsaved changes. Are you sure you want to leave?"),
     isChanged
   );
 
@@ -74,26 +76,26 @@ const PlayerProfile = () => {
     <>
       <Box sx={styles.container}>
         <Box>
-          <Typography sx={styles.title}>Profile</Typography>
+          <Typography sx={styles.title}>{t("Profile")}</Typography>
           <Box sx={styles.form}>
             <TextField
               id="outlined-helperText"
-              label="Email"
-              value={loading ? "Loading..." : playerInfo?.email || ""}
+              label={t("Email")}
+              value={loading ? t("Loading...") : playerInfo?.email || ""}
               variant="standard"
               disabled
             />
             <TextField
               id="outlined-helperText"
-              label="Username"
-              value={loading ? "Loading..." : playerInfo?.username || ""}
+              label={t("Username")}
+              value={loading ? t("Loading...") : playerInfo?.username || ""}
               variant="standard"
               onChange={handleUserNameChange}
             />
             <TextField
               id="outlined-helperText"
-              label="Phone number"
-              value={loading ? "Loading..." : playerInfo?.phoneNumber || ""}
+              label={t("Phone number")}
+              value={loading ? t("Loading...") : playerInfo?.phoneNumber || ""}
               variant="standard"
               onChange={handlePhoneNumberChange}
             />
@@ -120,7 +122,7 @@ const PlayerProfile = () => {
                 htmlFor="profile-pic-upload"
                 style={{ color: "#000", cursor: "inherit" }}
               >
-                Edit image
+                {t("Edit image")}
               </label>
             </Button>
           </Box>
@@ -132,7 +134,7 @@ const PlayerProfile = () => {
           onClick={handleUpdatePlayerInfo}
           disabled={!isChanged}
         >
-          Save
+          {t("Save")}
         </Button>
         <Button
           variant="outlined"
@@ -141,7 +143,7 @@ const PlayerProfile = () => {
             setPlayerInfo(originalPlayerInfo!);
           }}
         >
-          Cancel
+          {t("Cancel")}
         </Button>
       </Box>
     </>

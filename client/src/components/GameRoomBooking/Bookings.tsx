@@ -12,6 +12,7 @@ import Calendar from "./Calendar";
 import { getStatusColor, getStatusTooltip } from "./BookingHelpers";
 import { LoaderContext } from "../../context/LoaderProvider";
 import { usePrompt } from "../../hooks/usePrompt";
+import { useTranslation } from "react-i18next";
 
 const initialBooking: RoomBookingDto = {
   bookingDateTime: undefined,
@@ -25,6 +26,7 @@ const Bookings = () => {
   const { enqueueSnackbar } = useSnackbar();
   const { playerInfo } = usePlayerInfo();
   const { setLoading } = useContext(LoaderContext);
+  const { t } = useTranslation();
 
   const [calendar, setCalendar] = useState<RoomBookingDto[]>([]);
   const [calendarKey, setCalendarKey] = useState(0);
@@ -412,13 +414,13 @@ const Bookings = () => {
   const isChanged = checkFieldsValidation() || checkFieldsChange();
 
   usePrompt(
-    "You have unsaved changes. Are you sure you want to leave?",
+    t("You have unsaved changes. Are you sure you want to leave?"),
     isChanged
   );
 
   return (
     <Box sx={styles.container}>
-      <Typography sx={styles.title}>Calendar</Typography>
+      <Typography sx={styles.title}>{t("Calendar")}</Typography>
       <Calendar
         key={calendarKey} // Force re-render of calendar when key changes
         events={events}

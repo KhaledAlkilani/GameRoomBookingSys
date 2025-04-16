@@ -15,9 +15,11 @@ import gameRoomImage from "../../assets/gameroomimage.svg";
 import RegistrationModal from "./RegistrationModal";
 import { enqueueSnackbar } from "notistack";
 import AppTitleColored from "../../assets/APP-TITLE-COLORED.svg";
+import { useTranslation } from "react-i18next";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const [playerDto, setPlayerDto] = useState<PlayerDto>({});
   const [error, setError] = useState<string | null>(null);
@@ -62,12 +64,12 @@ const Login: React.FC = () => {
   const handleRegisterSend = async (email: string) => {
     try {
       await api.RegistrationService.sendRegistrationLink({ email });
-      enqueueSnackbar(`Registration link sent to ${email}`, {
+      enqueueSnackbar(t(`Registration link sent to ${email}`), {
         variant: "success",
       });
     } catch (e: any) {
       console.error("Error sending registration link:", e);
-      enqueueSnackbar(e?.message || "Error sending registration link", {
+      enqueueSnackbar(e?.message || t("Error sending registration link"), {
         variant: "error",
       });
     }
@@ -79,13 +81,13 @@ const Login: React.FC = () => {
         <Paper sx={styles.paper}>
           <Box sx={styles.titleAndLogo}>
             <Typography variant="h5" sx={styles.title}>
-              Log in to
+              {t("Log in to")}
             </Typography>
             <img src={AppTitleColored} alt="X Game Room" width={200} />
           </Box>
 
           <TextField
-            label="Enter your email (university email only)"
+            label={t("Enter your email (university email only)")}
             type="email"
             value={playerDto.email || ""}
             onChange={handleEmailChange}
@@ -94,7 +96,7 @@ const Login: React.FC = () => {
           />
           {/* Password to be added later with keycloak authentication */}
           <TextField
-            label="Enter your password"
+            label={t("Enter your password")}
             type="password"
             value={""}
             onChange={() => {}}
@@ -104,7 +106,7 @@ const Login: React.FC = () => {
 
           {error && (
             <Typography color="error" variant="body1" sx={{ mt: 1 }}>
-              {"Error: " + error}
+              {t("Error: ") + error}
             </Typography>
           )}
 
@@ -115,14 +117,14 @@ const Login: React.FC = () => {
             onClick={handleLogin}
             sx={{ mt: 2, width: "100%" }}
           >
-            Login
+            {t("Login")}
           </Button>
 
           <Box sx={styles.linksRow}>
             <Button onClick={() => setIsRegisterOpen(true)}>
-              register now
+              {t("register now")}
             </Button>
-            <Button>forgot password?</Button>
+            <Button>{t("forgot password?")}</Button>
           </Box>
         </Paper>
       </Container>

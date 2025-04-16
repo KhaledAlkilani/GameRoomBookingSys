@@ -9,10 +9,12 @@ import { useColorScheme } from "@mui/material/styles";
 import { useEffect, useState } from "react";
 import { api } from "../api/api";
 import { usePlayerInfo } from "../hooks/usePlayerInfo";
+import { useTranslation } from "react-i18next";
 
 export const AppThemeSwitch = () => {
   // MUI color scheme hook
   const { mode, setMode } = useColorScheme();
+  const { t } = useTranslation();
 
   const { playerInfo } = usePlayerInfo();
 
@@ -51,7 +53,7 @@ export const AppThemeSwitch = () => {
   return (
     <FormControl>
       <Typography mb={1} mt={2} id="demo-theme-toggle">
-        Theme
+        {t("Theme")}
       </Typography>
       <RadioGroup
         aria-labelledby="demo-theme-toggle"
@@ -60,8 +62,12 @@ export const AppThemeSwitch = () => {
         value={currentTheme}
         onChange={handleThemeChange}
       >
-        <FormControlLabel value="light" control={<Radio />} label="Light" />
-        <FormControlLabel value="dark" control={<Radio />} label="Dark" />
+        <FormControlLabel
+          value="light"
+          control={<Radio />}
+          label={t("Light")}
+        />
+        <FormControlLabel value="dark" control={<Radio />} label={t("Dark")} />
       </RadioGroup>
     </FormControl>
   );
